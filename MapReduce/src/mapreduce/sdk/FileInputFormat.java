@@ -1,12 +1,15 @@
 package mapreduce.sdk;
 
 import java.io.File;
+import java.io.IOException;
 
 public class FileInputFormat implements InputFormat {
 	
-	public void setInputPaths(JobConf conf,String path){
+	public static void setInputPaths(JobConf conf,String path) throws IOException{
 		String inputPath="";
 		File root = new File(path);
+		if(!root.isFile()&&!root.isDirectory())
+			throw new IOException("Can not find: "+path);
 		if(root.isDirectory()){
 			String subFile=getFile(root);
 			if(!subFile.equals(""))
@@ -19,7 +22,7 @@ public class FileInputFormat implements InputFormat {
 		}
 		conf.setInputFile(inputPath);
 	}
-	private String getFile(File root){
+	private static String getFile(File root){
 		String path="";
 		File[] files = root.listFiles();
 		for(File file:files){

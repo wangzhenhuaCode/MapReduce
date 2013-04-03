@@ -57,5 +57,8 @@ public class JobConf {
 	protected void setInputFile(String path){
 		configuration.put("mapreduce.input.path", path);
 	}
+	protected void setOutputFile(String path){
+		configuration.put("mapreduce.output.path", path);
+	}
 	
 }
