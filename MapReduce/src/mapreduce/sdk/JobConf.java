@@ -60,5 +60,11 @@ public class JobConf {
 	protected void setOutputFile(String path){
 		configuration.put("mapreduce.output.path", path);
 	}
+	public Map<String, String> getConfiguration() {
+		return configuration;
+	}
+	protected void setJobId(String id){
+		configuration.put("mapreduce.job.id", id);
+	}
 	
 }
