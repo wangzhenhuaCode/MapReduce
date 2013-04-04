@@ -66,5 +66,8 @@ public class JobConf {
 	protected void setJobId(String id){
 		configuration.put("mapreduce.job.id", id);
 	}
+	public void setFixedRecordLength(Long length){
+		configuration.put("mapreduce.input.fixedlength", length.toString());
+	}
 	
 }

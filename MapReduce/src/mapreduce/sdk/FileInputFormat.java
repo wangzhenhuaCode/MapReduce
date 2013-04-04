@@ -3,7 +3,7 @@ package mapreduce.sdk;
 import java.io.File;
 import java.io.IOException;
 
-public class FileInputFormat implements InputFormat {
+public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 	
 	public static void setInputPaths(JobConf conf,String path) throws IOException{
 		String inputPath="";
@@ -36,4 +36,8 @@ public class FileInputFormat implements InputFormat {
 		}
 		return path;
 	}
+
+	public abstract RecordReader<K, V> getRecordReader(String[] path,JobConf conf, Reporter reporter)throws IOException;
+
+	
 }

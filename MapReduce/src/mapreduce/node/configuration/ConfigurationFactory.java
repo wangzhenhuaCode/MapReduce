@@ -97,6 +97,20 @@ public class ConfigurationFactory {
 				fis.close();
 				throw new Exception("Wrong configuration for property: masterPort");
 			}
+			
+			
+			String messageMaxPoolSize=porperty.getProperty("messageMaxPoolSize");
+			if(messageMaxPoolSize==null){
+				fis.close();
+				throw new Exception("Cannot find property: messageMaxPoolSize");
+				
+			}
+			try{
+			configuration.setMessageMaxPoolSize(Integer.valueOf(messageMaxPoolSize));
+			}catch(Exception e){
+				fis.close();
+				throw new Exception("Wrong configuration for property: messageMaxPoolSize");
+			}
 		}
 		
 		

@@ -1,6 +1,7 @@
 package mapreduce.node;
 
 import mapreduce.node.configuration.Configuration;
+import mapreduce.node.connection.ServerSocketConnection;
 
 public class Node {
 	private Configuration configuration;
@@ -15,7 +16,7 @@ public class Node {
 		return node;
 	}
 	public void run()throws Exception{
-		
+		ServerSocketConnection.createServerSocketConnection(configuration.getLocalPort());
 	}
 	
 }

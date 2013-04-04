@@ -7,6 +7,7 @@ public class Configuration {
 	private Integer localPort;
 	private String localHostName;
 	private Integer capability;
+	private Integer messageMaxPoolSize;
 	public Boolean getIsMaster() {
 		return isMaster;
 	}
@@ -42,6 +43,12 @@ public class Configuration {
 	}
 	public void setCapability(Integer capability) {
 		this.capability = capability;
+	}
+	public Integer getMessageMaxPoolSize() {
+		return messageMaxPoolSize;
+	}
+	public void setMessageMaxPoolSize(Integer messageMaxPoolSize) {
+		this.messageMaxPoolSize = messageMaxPoolSize;
 	}
 	
 	
