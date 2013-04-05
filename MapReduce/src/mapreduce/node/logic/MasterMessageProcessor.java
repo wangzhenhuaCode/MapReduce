@@ -9,6 +9,7 @@ import mapreduce.node.logic.Job.Status;
 import mapreduce.sdk.InputFormat;
 import mapreduce.sdk.JobConf;
 import mapreduce.sdk.RecordReader;
+import mapreduce.sdk.TextInputFormat;
 import mapreduce.sdk.WrapObject;
 
 public class MasterMessageProcessor implements MessageProcessor {
@@ -42,9 +43,6 @@ public class MasterMessageProcessor implements MessageProcessor {
 			String[] inputpath=conf.getConfiguration().get("mapreduce.input.path").split(",");
 			InputFormat inputInstance=(InputFormat) Class.forName(conf.getConfiguration().get("mapreduce.input.format")).newInstance();
 			
-			 RecordReader<WrapObject<Long>, WrapObject<String>> r=inputInstance.getRecordReader(inputpath, conf, null);
-			 Map<WrapObject<Long>, WrapObject<String>> map=r.generateKeyValue();
-			 
 		}
 	}
 

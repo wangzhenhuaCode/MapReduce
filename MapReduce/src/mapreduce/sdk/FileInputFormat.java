@@ -2,6 +2,10 @@ package mapreduce.sdk;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.security.auth.login.Configuration;
 
 public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 	
@@ -38,6 +42,33 @@ public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 	}
 
 	public abstract RecordReader<K, V> getRecordReader(String[] path,JobConf conf, Reporter reporter)throws IOException;
-
+	public InputSplit[] getSplit(JobConf conf, String[] path){
+		Long blockSize=Long.valueOf(conf.getConfiguration().get("map.input.blockSize"));
+		Long available=blockSize;
+		List<InputSplit> list=new ArrayList<InputSplit>();
+		InputSplit inputsplit=new InputSplit();;
+		for(int i=0;i<path.length;i++){
+			File file=new File(path[i]);
+			long pos=0;
+			while(pos+available<file.length()){
+				FileSplit split=new FileSplit(path[i],pos,pos+blockSize);
+				inputsplit.getFileList().add(split);
+				list.add(inputsplit);
+				inputsplit=new InputSplit();
+				pos+=blockSize;
+				available=blockSize;
+			}
+			long occupied=file.length()-1-pos;
+			available=blockSize-occupied;
+			if(occupied>0){
+				FileSplit split=new FileSplit(path[i],pos,pos+occupied);
+				inputsplit.getFileList().add(split);
+			}
+		
+		}
+		list.add(inputsplit);
+		return (InputSplit[])list.toArray();
+		
+	}
 	
 }

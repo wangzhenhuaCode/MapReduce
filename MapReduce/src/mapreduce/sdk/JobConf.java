@@ -12,6 +12,7 @@ public class JobConf {
 	public JobConf(Class exampleClass) throws IOException{
 		configuration=new HashMap<String,String>();
 		findJarAddress(exampleClass);
+		configuration.put("map.input.blockSize", "1024");
 	}
 	private void findJarAddress(Class exampleClass) throws IOException{
 		String path=null;
