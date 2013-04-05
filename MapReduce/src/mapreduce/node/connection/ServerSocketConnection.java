@@ -1,6 +1,8 @@
 package mapreduce.node.connection;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -52,7 +54,7 @@ public class ServerSocketConnection {
 				return instance;
 			
 		}
-		public static Socket getNewSocket() throws InterruptedException{
+		public static Message getNewMessage() throws InterruptedException, IOException, ClassNotFoundException{
 			Socket s=null;
 			synchronized(instance.messageQueue){
 				while(instance.messageQueue.isEmpty()){
@@ -60,10 +62,26 @@ public class ServerSocketConnection {
 				}
 				s=instance.messageQueue.poll();
 			}
-			return s;
+			ObjectInputStream in = null;
+		
+				in = new ObjectInputStream(s.getInputStream());
+				Message message=(Message) in.readObject();
+				String remoteIp=s.getInetAddress().getHostAddress();
+				
+				in.close();
+				s.close();
+				
+			
+			return message;
 		}
 		public Integer getPort() {
 			return port;
+		}
+		public static void sendMessage(Message message) throws IOException{
+			Socket socket=new Socket(message.getReceiverHost(),message.getReceiverPort());
+			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+			out.writeObject(message);
+			out.close();
 		}
 	
 }

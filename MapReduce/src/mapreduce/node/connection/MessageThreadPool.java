@@ -20,29 +20,16 @@ public class MessageThreadPool {
 					public void run() {
 						
 						while(true){
-							Socket s=null;
 							try {
-								s=ServerSocketConnection.getNewSocket();
+								ServerSocketConnection.getNewMessage();
 							} catch (InterruptedException e) {
-								
+								// TODO Auto-generated catch block
 								e.printStackTrace();
-							}
-							ObjectInputStream in = null;
-							try {
-								in = new ObjectInputStream(s.getInputStream());
-								Message message=(Message) in.readObject();
-								String remoteIp=s.getInetAddress().getHostAddress();
-								
-								in.close();
-								s.close();
-								//MessageProcessor mp=(MessageProcessor) processClass.newInstance();
-								
-								
-							}catch (IOException e) {
-								
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
 								e.printStackTrace();
 							} catch (ClassNotFoundException e) {
-								
+								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 							
