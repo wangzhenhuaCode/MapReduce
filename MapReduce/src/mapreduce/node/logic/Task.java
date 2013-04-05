@@ -5,11 +5,11 @@ import java.io.Serializable;
 import mapreduce.sdk.InputSplit;
 
 public class Task implements Serializable {
-	public enum TaskStatus{BEGIN,END,NOTIFY}
+	public enum TaskStatus{BEGIN,END,JOB_FINAL,JOB_FINISHED}
 	private String jobId;
 	private String taskId;
 	private TaskStatus status;
-	
+	private String output;
 	private transient NodeStatus node;
 	
 	public Task(String jobId, String taskId) {
@@ -50,6 +50,14 @@ public class Task implements Serializable {
 
 	public void setNode(NodeStatus node) {
 		this.node = node;
+	}
+
+	public String getOutput() {
+		return output;
+	}
+
+	public void setOutput(String output) {
+		this.output = output;
 	}
 	
 	

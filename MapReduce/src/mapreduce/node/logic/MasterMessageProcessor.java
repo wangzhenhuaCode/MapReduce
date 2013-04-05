@@ -11,6 +11,7 @@ import mapreduce.node.connection.Message;
 import mapreduce.node.connection.NodeMessage;
 import mapreduce.node.connection.TaskMessage;
 import mapreduce.node.logic.Job.JobStatus;
+import mapreduce.node.logic.Task.TaskStatus;
 import mapreduce.sdk.InputFormat;
 import mapreduce.sdk.InputSplit;
 import mapreduce.sdk.JobConf;
@@ -58,26 +59,37 @@ public class MasterMessageProcessor implements MessageProcessor {
 		}
 	}
 	private void processTaskMessage(TaskMessage message){
-		if(message.getTask() instanceof MapTask){
+		
 			if(message.getTask().getStatus().equals(Task.TaskStatus.END)){
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
+				synchronized(job){
 				ReduceTask reducetask=job.getAvailableReduce(message.getTask());
-				if(reducetask==null){
+				if(!job.getStatus().equals(JobStatus.JOB_FINALL_STATE)){
+					
+					if(reducetask==null){
+						
+						//Magic Number
+						//
+						//Magic Number
+						reducetask=new ReduceTask(message.getTask().getJobId(),"R-"+(new Date()).getTime(),5);
+						reducetask.setStatus(Task.TaskStatus.BEGIN);
+						job.getTaskList().add(reducetask);
+					}
+					if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
+						NodeStatus node=NodeBalance.getLeastBusyNode();
+						reducetask.setNode(node);
+						NodeBalance.assignTask(reducetask);
+					}
+				
+				}else{
+					reducetask.setStatus(TaskStatus.JOB_FINAL);
 					NodeStatus node=NodeBalance.getLeastBusyNode();
-					//Magic Number
-					//
-					//Magic Number
-					reducetask=new ReduceTask(message.getTask().getJobId(),"R-"+(new Date()).getTime(),5);
 					reducetask.setNode(node);
-					reducetask.setStatus(Task.TaskStatus.BEGIN);
-					job.getTaskList().add(reducetask);
+					NodeBalance.assignTask(reducetask);
 				}
-				
-				
+				}
 			}
-		}else{
-			
-		}
+		
 	}
 	private void processNodeMessage(NodeMessage message){
 		

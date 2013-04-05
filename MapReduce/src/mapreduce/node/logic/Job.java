@@ -7,12 +7,12 @@ import java.util.List;
 import mapreduce.sdk.JobConf;
 
 public class Job implements Serializable {
-	public static enum JobStatus{JOB_INIT};
+	public static enum JobStatus{JOB_INIT, JOB_FINALL_STATE};
 	private JobConf conf;
 	private JobStatus status;
 	private String jobId;
 	private transient List<Task> taskList;
-	transient Integer workingNode;
+
 	public JobConf getConf() {
 		return conf;
 	}
@@ -48,27 +48,42 @@ public class Job implements Serializable {
 	public Job() {
 		taskList=new ArrayList<Task>();
 	}
-	public Integer getWorkingNode() {
-		return workingNode;
-	}
-	public void setWorkingNode(Integer workingNode) {
-		this.workingNode = workingNode;
-	}
+
 	public ReduceTask getAvailableReduce(Task task){
 		ReduceTask reduce=null;
+		Integer unfinished=0;
+		
+		Boolean added=false;
 		for(int i=0;i<taskList.size();i++){
 			Task t=taskList.get(i);
-			if(task.getTaskId().equals(t.getTaskId())){
-				task.setStatus(Task.TaskStatus.END);
-			}
-			if(t instanceof ReduceTask){
-				reduce=(ReduceTask) t;
-				if(reduce.getReduceNum()>reduce.getSourceTaskList().size()){
-					reduce.getSourceTaskList().add(task);
-				}else{
-					reduce=null;
+			if(t.getStatus().equals(Task.TaskStatus.BEGIN)){
+				if(task.getTaskId().equals(t.getTaskId())){
+					task.setStatus(Task.TaskStatus.END);
+					unfinished--;
 				}
+				if(t instanceof ReduceTask){
+					
+					reduce=(ReduceTask) t;
+			
+					if(!added){
+						if(reduce.getReduceNum()>reduce.getSourceTaskList().size()){
+							reduce.getSourceTaskList().add(task);
+							added=true;
+						
+						}else{
+							reduce=null;
+						}
+					}
+				}
+				
+				unfinished++;
 			}
+			
+		}
+		if(unfinished==1&&added){
+			this.status=JobStatus.JOB_FINALL_STATE;
+		
+			
 		}
 		return reduce;
 	}

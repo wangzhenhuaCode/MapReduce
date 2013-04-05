@@ -10,12 +10,26 @@ public class MapTask extends Task {
 	private InputSplit inputSplit;
 	private String reduceNodeHost;
 	private Integer reduceNodePort;
+	
 	public InputSplit getInputSplit() {
 		return inputSplit;
 	}
 	public void setInputSplit(InputSplit inputSplit) {
 		this.inputSplit = inputSplit;
 	}
+	public String getReduceNodeHost() {
+		return reduceNodeHost;
+	}
+	public void setReduceNodeHost(String reduceNodeHost) {
+		this.reduceNodeHost = reduceNodeHost;
+	}
+	public Integer getReduceNodePort() {
+		return reduceNodePort;
+	}
+	public void setReduceNodePort(Integer reduceNodePort) {
+		this.reduceNodePort = reduceNodePort;
+	}
+
 	
 	
 }
