@@ -2,7 +2,7 @@ package mapreduce.sdk;
 
 import java.io.Serializable;
 
-public class WrapObject<T> implements Serializable {
+public class WrapObject<T extends Comparable<T>> implements Writable<T>{
 	private T value;
 
 	public T getValue() {
@@ -34,6 +34,11 @@ public class WrapObject<T> implements Serializable {
 	public WrapObject(T value) {
 		super();
 		this.value = value;
+	}
+
+	public int compareTo(T arg0) {
+		// TODO Auto-generated method stub
+		return arg0.compareTo(value);
 	}
 	
 	

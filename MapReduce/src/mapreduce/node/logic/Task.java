@@ -2,7 +2,8 @@ package mapreduce.node.logic;
 
 import java.io.Serializable;
 
-import mapreduce.sdk.InputSplit;
+
+import mapreduce.sdk.JobConf;
 
 public class Task implements Serializable {
 	public enum TaskStatus{BEGIN,END,JOB_FINAL,JOB_FINISHED}
@@ -10,6 +11,7 @@ public class Task implements Serializable {
 	private String taskId;
 	private TaskStatus status;
 	private String output;
+	private JobConf conf;
 	private transient NodeStatus node;
 	
 	public Task(String jobId, String taskId) {
@@ -58,6 +60,14 @@ public class Task implements Serializable {
 
 	public void setOutput(String output) {
 		this.output = output;
+	}
+
+	public JobConf getConf() {
+		return conf;
+	}
+
+	public void setConf(JobConf conf) {
+		this.conf = conf;
 	}
 	
 	

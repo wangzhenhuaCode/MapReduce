@@ -7,7 +7,7 @@ import java.util.List;
 import mapreduce.sdk.JobConf;
 
 public class Job implements Serializable {
-	public static enum JobStatus{JOB_INIT, JOB_FINALL_STATE};
+	public static enum JobStatus{JOB_INIT, JOB_FINALL_STATE,JOB_FINISHED};
 	private JobConf conf;
 	private JobStatus status;
 	private String jobId;

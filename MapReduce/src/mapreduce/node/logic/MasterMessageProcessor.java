@@ -1,6 +1,7 @@
 package mapreduce.node.logic;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -15,6 +16,8 @@ import mapreduce.node.logic.Task.TaskStatus;
 import mapreduce.sdk.InputFormat;
 import mapreduce.sdk.InputSplit;
 import mapreduce.sdk.JobConf;
+
+
 
 
 public class MasterMessageProcessor implements MessageProcessor {
@@ -52,13 +55,14 @@ public class MasterMessageProcessor implements MessageProcessor {
 			for(int i=0;i<inputsplit.length;i++){
 				MapTask task=new MapTask(job.getJobId(),"M+"+i);
 				task.setInputSplit(inputsplit[i]);
+				task.setConf(conf);
 				job.getTaskList().add(task);
 			}
 			NodeBalance.assignTask(job.getTaskList());
 			NodeSystem.jobList.put(job.getJobId(), job);
 		}
 	}
-	private void processTaskMessage(TaskMessage message){
+	private void processTaskMessage(TaskMessage message) throws IOException, ClassNotFoundException{
 		
 			if(message.getTask().getStatus().equals(Task.TaskStatus.END)){
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
@@ -78,6 +82,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 					if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
 						NodeStatus node=NodeBalance.getLeastBusyNode();
 						reducetask.setNode(node);
+						reducetask.setConf(job.getConf());
 						NodeBalance.assignTask(reducetask);
 					}
 				
@@ -88,6 +93,12 @@ public class MasterMessageProcessor implements MessageProcessor {
 					NodeBalance.assignTask(reducetask);
 				}
 				}
+			}else if(message.getTask().getStatus().equals(Task.TaskStatus.JOB_FINISHED)){
+				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
+				JobConf conf=job.getConf();
+				OutputCollection collection=new OutputCollection(message.getTask().getOutput());
+				collection.output(conf.getConfiguration().get("mapreduce.output.path"));
+				job.setStatus(Job.JobStatus.JOB_FINISHED);
 			}
 		
 	}

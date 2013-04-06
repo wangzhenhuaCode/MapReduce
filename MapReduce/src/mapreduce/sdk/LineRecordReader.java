@@ -7,95 +7,76 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LineRecordReader implements RecordReader<WrapObject<Long>, WrapObject<String>> {
-	private long lineStart;
-	private long pos;
-	private Long keyId=0l;
-	private String[] path;
+public class LineRecordReader implements RecordReader<WrapObject<String>, WrapObject<String>> {
+
+	private InputSplit input;
 	private RandomAccessFile reader;
-	private int lineNumber;
 	private int curFile;
-	private boolean filechanged;
-	private long lineEnd;
+	private FileSplit file;
+	private long pos;
+	private boolean empty;
+
 
 	
-	public LineRecordReader(String[] path, int lineNumber) throws IOException {
-		this.path = path;
-		this.lineNumber = lineNumber;
+	public LineRecordReader(InputSplit input) throws IOException {
+		this.input=input;
 		curFile=0;
-		pos=0;
-		reader=new RandomAccessFile(new File(path[curFile]),"r");
+		empty=false;
+		file=input.getFileList().get(curFile);
+		reader=new RandomAccessFile(new File(file.getPath()),"r");
+		pos=file.getStart();
+		reader.seek(pos);
+		long len=reader.length();
+		while(pos<len){
+			if((reader.read())=='\n'){
+				pos++;
+				break;
+			}
+			pos++;
+		}
+		if(pos>=len-1){
+			pos=0;
+			curFile++;
+			reader.close();
+			if(curFile>=input.getFileList().size()){
+				empty=true;
+			}else{
+				file=input.getFileList().get(curFile);
+				
+				reader=new RandomAccessFile(new File(file.getPath()),"r");
+			}
+		}
+		
 	
 	}
 
 	@Override
-	public Map<WrapObject<Long>, WrapObject<String>> generateKeyValue() throws IOException {
-		byte[] buffer = new byte[1024];
-        int count = 0;
-        int readChars = 0;
-        StringBuffer str=new StringBuffer();
-        filechanged=false;
-        lineStart=0;
-        Map<WrapObject<Long>, WrapObject<String>> map=new HashMap<WrapObject<Long>, WrapObject<String>>();
-	    while(hasNext()){
-	    	
-	        while ((readChars = reader.read(buffer)) != -1) {
-	          
-	            for (int i = 0; i < readChars; ++i) {
-	                if (buffer[i] == '\n') {
-	                    count++;
-
-	                    if(count==lineNumber){
-	                    	count=0;
-	                    	lineEnd=pos+i;
-	                    	str.append(path[curFile]+";"+lineStart+";"+lineEnd+",");
-	                    	lineStart=lineEnd;
-	                    	String v=new String(str);
-	                    	map.put(new WrapObject<Long>(keyId),new WrapObject<String>(v));
-	                    	keyId++;
-	                    	str=new StringBuffer();
-	                    }
-	                    
-	                    	
-	                }
-	            }
-	            pos+=readChars;
-	        }
-	        lineEnd=pos;
-	        if(lineStart<lineEnd){
-	        	count++;
-	        	lineEnd=pos;
-            	str.append(path[curFile]+";"+lineStart+";"+lineEnd+",");
-            	lineStart=0;
-	        	if(count==lineNumber){
-                	count=0;
-                	String v=new String(str);
-                	map.put(new WrapObject<Long>(keyId),new WrapObject<String>(v));
-                	keyId++;
-                	str=new StringBuffer();
-                }
-	        }
-	        
-	        
-	    }
-	    return map;
-		
-	}
-	private boolean hasNext() throws IOException{
-	
-		
-			curFile++;
-			if(curFile>=path.length){
-				return false;
-			}
-			pos=0;
+	public boolean next(WrapObject<String> key, WrapObject<String> value) throws IOException {
+		if(empty)return !empty;
+		if(pos<file.getEnd()){
+			String v=reader.readLine();
+			value.setValue(v);
+			pos+=v.getBytes().length;
+			key.setValue(file.getPath()+":"+pos);
+			return true;
+		}else{
 			reader.close();
-			reader=new RandomAccessFile(new File(path[curFile]),"r");
-			
-			filechanged=true;
-			
+			curFile++;
+			pos=0;
+			if(curFile>=input.getFileList().size()){
+				empty=true;
+				return !empty;
+			}else{
+				file=input.getFileList().get(curFile);
+				reader=new RandomAccessFile(new File(file.getPath()),"r");
+				String v=reader.readLine();
+				value.setValue(v);
+				pos+=v.getBytes().length;
+				key.setValue(file.getPath()+":"+pos);
+				return true;
+			}
+		}
 		
-		return true;
 	}
 
 	
