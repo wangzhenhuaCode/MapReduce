@@ -79,6 +79,18 @@ public class LineRecordReader implements RecordReader<WrapObject<String>, WrapOb
 		
 	}
 
+	@Override
+	public WrapObject<String> createKey() {
+		// TODO Auto-generated method stub
+		return new WrapObject<String>("");
+	}
+
+	@Override
+	public WrapObject<String> createValue() {
+		// TODO Auto-generated method stub
+		return new WrapObject<String>("");
+	}
+
 	
 	
 	
