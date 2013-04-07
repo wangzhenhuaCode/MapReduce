@@ -9,7 +9,7 @@ public class NodeStatus {
 	private Configuration configuration;
 	private Integer running;
 	private Integer waiting;
-	private Integer NodeId;
+	private String NodeId;
 	private transient boolean updated;
 	private transient List<Task> taskList;
 	public Configuration getConfiguration() {
@@ -30,10 +30,10 @@ public class NodeStatus {
 	public void setWaiting(Integer waiting) {
 		this.waiting = waiting;
 	}
-	public Integer getNodeId() {
+	public String getNodeId() {
 		return NodeId;
 	}
-	public void setNodeId(Integer nodeId) {
+	public void setNodeId(String nodeId) {
 		NodeId = nodeId;
 	}
 	public boolean isUpdated() {

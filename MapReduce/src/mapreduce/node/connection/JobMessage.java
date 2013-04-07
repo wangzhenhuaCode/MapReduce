@@ -3,9 +3,9 @@ package mapreduce.node.connection;
 import mapreduce.node.logic.Job;
 
 public class JobMessage extends Message {
-	public JobMessage(String senderHost, Integer senderPort,
+	public JobMessage(
 			String receiverHost, Integer receiverPort, Job job) {
-		super(senderHost, senderPort, receiverHost, receiverPort);
+		super( receiverHost, receiverPort);
 		this.job=job;
 	}
 	private Job job;

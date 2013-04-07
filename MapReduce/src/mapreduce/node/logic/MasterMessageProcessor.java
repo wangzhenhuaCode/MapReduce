@@ -114,7 +114,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 				job.setStatus(Job.JobStatus.JOB_FINISHED);
 			}
 			Task t=message.getTask();
-			int nodeId=t.getNodeId();
+			String nodeId=t.getNodeId();
 			NodeStatus node=null;
 			for(NodeStatus n:NodeSystem.nodeList){
 				if(n.getNodeId().equals(nodeId)){

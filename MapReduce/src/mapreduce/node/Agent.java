@@ -23,7 +23,7 @@ public class Agent {
 		JobConf conf=(JobConf)in.readObject();
 		in.close();
 		Job job=new Job(conf,Job.JobStatus.JOB_INIT,conf.getConfiguration().get("mapreduce.job.id"));
-		JobMessage message=new JobMessage(InetAddress.getLocalHost().getHostName(),null,job);
+		JobMessage message=new JobMessage(args[0],Integer.valueOf(args[1]),job);
 		Socket socket = new Socket(args[0],Integer.valueOf(args[1]));
 		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		out.writeObject(message);

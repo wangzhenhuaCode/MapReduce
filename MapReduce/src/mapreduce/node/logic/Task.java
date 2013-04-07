@@ -12,7 +12,7 @@ public class Task implements Serializable {
 	private TaskStatus status;
 	private String output;
 	private JobConf conf;
-	private Integer nodeId;
+	private String nodeId;
 	
 	
 	public Task(String jobId, String taskId) {
@@ -65,11 +65,11 @@ public class Task implements Serializable {
 		this.conf = conf;
 	}
 
-	public Integer getNodeId() {
+	public String getNodeId() {
 		return nodeId;
 	}
 
-	public void setNodeId(Integer nodeId) {
+	public void setNodeId(String nodeId) {
 		this.nodeId = nodeId;
 	}
 

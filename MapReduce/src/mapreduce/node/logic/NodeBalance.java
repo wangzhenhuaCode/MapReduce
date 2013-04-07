@@ -63,10 +63,12 @@ public class NodeBalance {
 				n.setRunning(node.getRunning());
 				n.setWaiting(node.getWaiting());
 				n.setUpdated(true);
-				break;
+				return;
 				
 			}
 		}
+		node.setUpdated(true);
+		NodeSystem.nodeList.add(node);
 		}
 	}
 	public static void assignTask(List<Task> taskList){
