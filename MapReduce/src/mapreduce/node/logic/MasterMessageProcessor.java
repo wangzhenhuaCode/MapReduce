@@ -126,7 +126,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 		
 	}
 	private void processNodeMessage(NodeMessage message){
-		
+		NodeBalance.updateNode(message.getNode());
 	}
 
 
