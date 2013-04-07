@@ -68,6 +68,18 @@ public class ConfigurationFactory {
 			throw new Exception("Wrong configuration for property: capability");
 		}
 		
+		String messageMaxPoolSize=porperty.getProperty("messageMaxPoolSize");
+		if(messageMaxPoolSize==null){
+			fis.close();
+			throw new Exception("Cannot find property: messageMaxPoolSize");
+			
+		}
+		try{
+		configuration.setMessageMaxPoolSize(Integer.valueOf(messageMaxPoolSize));
+		}catch(Exception e){
+			fis.close();
+			throw new Exception("Wrong configuration for property: messageMaxPoolSize");
+		}
 		
 		
 		if(!configuration.getIsMaster()){
@@ -100,21 +112,15 @@ public class ConfigurationFactory {
 			}
 			
 			
-			String messageMaxPoolSize=porperty.getProperty("messageMaxPoolSize");
-			if(messageMaxPoolSize==null){
-				fis.close();
-				throw new Exception("Cannot find property: messageMaxPoolSize");
-				
-			}
-			try{
-			configuration.setMessageMaxPoolSize(Integer.valueOf(messageMaxPoolSize));
-			}catch(Exception e){
-				fis.close();
-				throw new Exception("Wrong configuration for property: messageMaxPoolSize");
-			}
+			
+		}else{
+			configuration.setMasterPort(configuration.getLocalPort());
 		}
 		
 		configuration.setLocalHostName(InetAddress.getLocalHost().getHostName());
+		if(configuration.getIsMaster()){
+			configuration.setMasterHostName(configuration.getLocalHostName());
+		}
 		return configuration;
 	}
 	public static ConfigurationFactory getConfigurationFactory()  {

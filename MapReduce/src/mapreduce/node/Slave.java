@@ -2,20 +2,28 @@ package mapreduce.node;
 
 import java.io.IOException;
 
+import mapreduce.node.connection.MessageThreadPool;
 import mapreduce.node.connection.NodeMessage;
 import mapreduce.node.connection.ServerSocketConnection;
 import mapreduce.node.logic.MapReduceThreadPool;
+import mapreduce.node.logic.MessageProcessor;
 import mapreduce.node.logic.NodeStatus;
+import mapreduce.node.logic.SlaveMessageProcessor;
 
 public class Slave extends Node {
 
 	public Slave(){
+		super();
 		try {
-			run();
+			connect();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		MessageProcessor processor=new SlaveMessageProcessor();
+		MessageThreadPool.createInstance(NodeSystem.configuration.getMessageMaxPoolSize(), processor);
+		MapReduceThreadPool.init(NodeSystem.configuration.getCapability());
 		Thread update=new Thread(new Runnable(){
 
 			@Override

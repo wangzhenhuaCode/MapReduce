@@ -13,7 +13,6 @@ import mapreduce.sdk.InputSplit;
 
 public class NodeBalance {
 
-	public static NodeBalance instance;
 	public static void init(){
 		Thread thread=new Thread(new Runnable(){
 
@@ -54,7 +53,7 @@ public class NodeBalance {
 			}
 			
 		});
-		thread.run();
+		thread.start();
 	}
 	public static void updateNode(NodeStatus node){
 		synchronized(NodeSystem.nodeList){

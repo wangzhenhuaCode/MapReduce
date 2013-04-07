@@ -4,19 +4,21 @@ import mapreduce.node.configuration.Configuration;
 import mapreduce.node.connection.ServerSocketConnection;
 
 public class Node {
-	private Configuration configuration;
-	public static Node createNode(Configuration configuration){
+
+	public static Node createNode(){
+		
 		Node node=null;
-		if(configuration.getIsMaster()){
+		
+		if(NodeSystem.configuration.getIsMaster()){
 			node=new Master();
 		}else{
 			node=new Slave();
 		}
-		node.configuration=configuration;
+		
 		return node;
 	}
-	public void run()throws Exception{
-		ServerSocketConnection.createServerSocketConnection(configuration.getLocalPort());
+	public void connect()throws Exception{
+		ServerSocketConnection.createServerSocketConnection(NodeSystem.configuration.getLocalPort());
 	}
 	
 }

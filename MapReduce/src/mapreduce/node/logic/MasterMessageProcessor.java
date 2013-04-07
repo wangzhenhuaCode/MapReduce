@@ -44,6 +44,18 @@ public class MasterMessageProcessor implements MessageProcessor {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}else if(message instanceof TaskMessage){
+			try {
+				processTaskMessage((TaskMessage)message);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			processNodeMessage((NodeMessage)message);
 		}
 		
 	}
