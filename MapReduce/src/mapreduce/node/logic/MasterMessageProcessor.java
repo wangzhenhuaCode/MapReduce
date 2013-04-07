@@ -1,5 +1,6 @@
 package mapreduce.node.logic;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import mapreduce.node.logic.Task.TaskStatus;
 import mapreduce.sdk.InputFormat;
 import mapreduce.sdk.InputSplit;
 import mapreduce.sdk.JobConf;
+import mapreduce.sdk.WrapObject;
+import mapreduce.sdk.Writable;
 
 
 
@@ -49,6 +52,15 @@ public class MasterMessageProcessor implements MessageProcessor {
 		if(job.getStatus()==JobStatus.JOB_INIT){
 			JobConf conf=job.getConf();
 			String[] inputpath=conf.getConfiguration().get("mapreduce.input.path").split(",");
+			File output=new File(conf.getConfiguration().get("mapreduce.output.path"));
+			if(!conf.getConfiguration().containsKey("mapreduce.workingDirectory")){
+				String workingDirectory=output.getParent();
+				workingDirectory=workingDirectory+job.getJobId();
+				conf.setWorkingDirectory(workingDirectory);
+			}
+			File directory=new File(conf.getConfiguration().get("mapreduce.output.path"));
+			directory.createNewFile();
+			
 			InputFormat inputInstance=(InputFormat) Class.forName(conf.getConfiguration().get("mapreduce.input.format")).newInstance();
 			InputSplit[] inputsplit=inputInstance.getSplit(conf, inputpath);
 			job.setTaskList(new ArrayList<Task>());
@@ -96,7 +108,8 @@ public class MasterMessageProcessor implements MessageProcessor {
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.JOB_FINISHED)){
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
 				JobConf conf=job.getConf();
-				OutputCollection collection=new OutputCollection(message.getTask().getOutput());
+				OutputCollection<WrapObject,Writable> collection=new OutputCollection<WrapObject,Writable>();
+				collection.add(message.getTask().getOutput());
 				collection.output(conf.getConfiguration().get("mapreduce.output.path"));
 				job.setStatus(Job.JobStatus.JOB_FINISHED);
 			}

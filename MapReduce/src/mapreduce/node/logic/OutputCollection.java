@@ -16,7 +16,7 @@ import java.util.List;
 import mapreduce.sdk.OutputCollector;
 import mapreduce.sdk.Writable;
 
-public class OutputCollection<K extends Writable<K>, V> implements OutputCollector<K, V> {
+public class OutputCollection<K extends Writable, V> implements OutputCollector<K, V> {
 	
 	class Entry<K,V>{
 		K key;
@@ -68,10 +68,14 @@ public class OutputCollection<K extends Writable<K>, V> implements OutputCollect
 		super();
 		this.outputList = outputList;
 	}
-	public OutputCollection(String path) throws IOException, ClassNotFoundException{
+	public void add(String path) throws IOException, ClassNotFoundException{
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
-		outputList=(List<Entry<K, V>>) in.readObject();
+		outputList.addAll((List<Entry<K, V>>) in.readObject());
 		in.close();
 	}
+	public List<Entry<K, V>> getOutputList() {
+		return outputList;
+	}
+
 
 }

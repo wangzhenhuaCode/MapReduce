@@ -70,5 +70,7 @@ public class JobConf {
 	public void setFixedRecordLength(Long length){
 		configuration.put("mapreduce.input.fixedlength", length.toString());
 	}
-	
+	public void setWorkingDirectory(String path){
+		configuration.put("mapreduce.workingDirectory", path);
+	}
 }
