@@ -1,5 +1,7 @@
 package mapreduce.node.logic;
 
+import java.util.List;
+
 import mapreduce.node.configuration.Configuration;
 
 public class NodeStatus {
@@ -8,6 +10,8 @@ public class NodeStatus {
 	private Integer running;
 	private Integer waiting;
 	private Integer NodeId;
+	private transient boolean updated;
+	private transient List<Task> taskList;
 	public Configuration getConfiguration() {
 		return configuration;
 	}
@@ -31,6 +35,22 @@ public class NodeStatus {
 	}
 	public void setNodeId(Integer nodeId) {
 		NodeId = nodeId;
+	}
+	public boolean isUpdated() {
+		return updated;
+	}
+	public void setUpdated(boolean updated) {
+		this.updated = updated;
+	}
+	public List<Task> getTaskList() {
+		return taskList;
+	}
+	public void setTaskList(List<Task> taskList) {
+		this.taskList = taskList;
+	}
+	public void addTask(Task task){
+		task.setNodeId(NodeId);
+		
 	}
 	
 }

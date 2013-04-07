@@ -1,8 +1,7 @@
 package mapreduce.node.logic;
 
-import java.io.File;
+
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -90,7 +89,6 @@ public class SlaveMessageProcessor implements MessageProcessor {
 			task.setOutput(output);
 			task.setInputSplit(null);
 			task.setStatus(Task.TaskStatus.END);
-			task.setNode(null);
 			TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
 			ServerSocketConnection.sendMessage(message2);
 		}else{
@@ -133,7 +131,6 @@ public class SlaveMessageProcessor implements MessageProcessor {
 			
 			task.setOutput(output);
 			
-			task.setNode(null);
 			if(task.getStatus().equals(Task.TaskStatus.JOB_FINAL)){
 				task.setStatus(Task.TaskStatus.JOB_FINISHED);
 			}else{

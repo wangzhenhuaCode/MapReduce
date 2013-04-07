@@ -12,7 +12,8 @@ public class Task implements Serializable {
 	private TaskStatus status;
 	private String output;
 	private JobConf conf;
-	private transient NodeStatus node;
+	private Integer nodeId;
+	
 	
 	public Task(String jobId, String taskId) {
 		super();
@@ -46,13 +47,7 @@ public class Task implements Serializable {
 
 
 
-	public NodeStatus getNode() {
-		return node;
-	}
-
-	public void setNode(NodeStatus node) {
-		this.node = node;
-	}
+	
 
 	public String getOutput() {
 		return output;
@@ -69,6 +64,24 @@ public class Task implements Serializable {
 	public void setConf(JobConf conf) {
 		this.conf = conf;
 	}
+
+	public Integer getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(Integer nodeId) {
+		this.nodeId = nodeId;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Task t=(Task)obj;
+		if(t.jobId.equals(this.jobId)&&t.taskId.equals(this.taskId))
+			return true;
+		else return false;
+	}
+
+	
 	
 	
 	

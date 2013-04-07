@@ -1,13 +1,20 @@
 package mapreduce.node.connection;
 
+import mapreduce.node.logic.NodeStatus;
+
 public class NodeMessage extends Message {
-	public NodeMessage(String senderHost, Integer senderPort,
-			String receiverHost, Integer receiverPort) {
-		super(senderHost, senderPort, receiverHost, receiverPort);
-		// TODO Auto-generated constructor stub
+	public NodeMessage(String receiverHost, Integer receiverPort,NodeStatus node) {
+		super( receiverHost, receiverPort);
+		this.node=node;
 	}
 
-	public static enum NodeMessageStatus{NEW_NODE,NODE_UPDATE}
+	private NodeStatus node;
+	public NodeStatus getNode() {
+		return node;
+	}
+	public void setNode(NodeStatus node) {
+		this.node = node;
+	}
 	
 	
 

@@ -93,7 +93,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 					}
 					if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
 						NodeStatus node=NodeBalance.getLeastBusyNode();
-						reducetask.setNode(node);
+						node.getTaskList().add(reducetask);
 						reducetask.setConf(job.getConf());
 						NodeBalance.assignTask(reducetask);
 					}
@@ -101,7 +101,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 				}else{
 					reducetask.setStatus(TaskStatus.JOB_FINAL);
 					NodeStatus node=NodeBalance.getLeastBusyNode();
-					reducetask.setNode(node);
+					node.getTaskList().add(reducetask);
 					NodeBalance.assignTask(reducetask);
 				}
 				}
@@ -113,6 +113,16 @@ public class MasterMessageProcessor implements MessageProcessor {
 				collection.output(conf.getConfiguration().get("mapreduce.output.path"));
 				job.setStatus(Job.JobStatus.JOB_FINISHED);
 			}
+			Task t=message.getTask();
+			int nodeId=t.getNodeId();
+			NodeStatus node=null;
+			for(NodeStatus n:NodeSystem.nodeList){
+				if(n.getNodeId().equals(nodeId)){
+					node=n;
+					break;
+				}
+			}
+			node.getTaskList().remove(t);
 		
 	}
 	private void processNodeMessage(NodeMessage message){
