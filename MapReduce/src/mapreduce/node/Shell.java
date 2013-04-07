@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Shell {
-	private static String shellscript="if [ $* -eq 3 ]; then \n" +
+	private static String shellscript="#! /bin/bash\n" +
+			"if [ $# -eq 3 ]; then \n" +
 			" java -jar $1 $2 $3 | java -classpath %JAR% "+Agent.class.getName() +" %HOST% %PORT% \n" +
 					"else \n" +
 					"echo Incorrect arguments. \n" +
@@ -32,7 +33,8 @@ public class Shell {
 			}
 			Runtime run = Runtime.getRuntime();
 			try {
-				run.exec("chmod MapReduce u+x");
+				run.exec("chmod u+x MapReduce");
+		
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
