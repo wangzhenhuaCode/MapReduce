@@ -2,6 +2,7 @@ package mapreduce.node.logic;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import mapreduce.sdk.JobConf;
@@ -51,39 +52,46 @@ public class Job implements Serializable {
 
 	public ReduceTask getAvailableReduce(Task task){
 		ReduceTask reduce=null;
-		Integer unfinished=0;
+		int unfinished=0;
 		
 		Boolean added=false;
-		for(int i=0;i<taskList.size();i++){
-			Task t=taskList.get(i);
-			if(t.getStatus().equals(Task.TaskStatus.BEGIN)){
-				if(task.getTaskId().equals(t.getTaskId())){
-					task.setStatus(Task.TaskStatus.END);
-					unfinished--;
-				}
-				if(t instanceof ReduceTask){
-					
-					reduce=(ReduceTask) t;
-			
-					if(!added){
-						if(reduce.getReduceNum()>reduce.getSourceTaskList().size()){
-							reduce.getSourceTaskList().add(task);
-							added=true;
+		synchronized(taskList){
+			for(int i=0;i<taskList.size();i++){
+				Task t=taskList.get(i);
+				if(t.getStatus().equals(Task.TaskStatus.BEGIN)){
+					unfinished++;
+					if(task.getTaskId().equals(t.getTaskId())){
+						t.setStatus(Task.TaskStatus.END);
+						unfinished--;
+					}
+					if(t instanceof ReduceTask){
 						
-						}else{
-							reduce=null;
+						reduce=(ReduceTask) t;
+				
+						if(!added){
+							if(reduce.getReduceNum()>reduce.getSourceTaskList().size()){
+								reduce.getSourceTaskList().add(task);
+								added=true;
+							
+							}else{
+								reduce=null;
+							}
 						}
 					}
+					
+					
 				}
 				
-				unfinished++;
 			}
-			
+			if(!added){
+				reduce=new ReduceTask(jobId,"R-"+(new Date()).getTime(),5);
+				reduce.setStatus(Task.TaskStatus.BEGIN);
+				taskList.add(reduce);
+			}
 		}
+		System.out.println(unfinished);
 		if(unfinished==1&&added){
 			this.status=JobStatus.JOB_FINALL_STATE;
-		
-			
 		}
 		return reduce;
 	}

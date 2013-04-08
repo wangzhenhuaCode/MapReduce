@@ -12,17 +12,17 @@ public class ReduceTask extends Task {
 		this.reduceNum=reduceNum;
 		sourceTaskList=new ArrayList<Task>();
 	}
-	private transient List<Task> sourceTaskList;
+	private ArrayList<Task> sourceTaskList;
 	public Integer getReduceNum() {
 		return reduceNum;
 	}
 	public void setReduceNum(Integer reduceNum) {
 		this.reduceNum = reduceNum;
 	}
-	public List<Task> getSourceTaskList() {
+	public ArrayList<Task> getSourceTaskList() {
 		return sourceTaskList;
 	}
-	public void setSourceTaskList(List<Task> sourceTaskList) {
+	public void setSourceTaskList(ArrayList<Task> sourceTaskList) {
 		this.sourceTaskList = sourceTaskList;
 	}
 	

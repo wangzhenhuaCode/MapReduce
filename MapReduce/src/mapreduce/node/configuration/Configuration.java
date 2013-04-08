@@ -1,6 +1,8 @@
 package mapreduce.node.configuration;
 
-public class Configuration {
+import java.io.Serializable;
+
+public class Configuration implements Serializable {
 	private Boolean isMaster;
 	private String masterHostName;
 	private Integer masterPort;

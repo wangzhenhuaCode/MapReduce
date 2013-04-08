@@ -66,12 +66,15 @@ public class MasterMessageProcessor implements MessageProcessor {
 			String[] inputpath=conf.getConfiguration().get("mapreduce.input.path").split(",");
 			File output=new File(conf.getConfiguration().get("mapreduce.output.path"));
 			if(!conf.getConfiguration().containsKey("mapreduce.workingDirectory")){
-				String workingDirectory=output.getParent();
-				workingDirectory=workingDirectory+job.getJobId();
-				conf.setWorkingDirectory(workingDirectory);
+				String workingDirectory=output.getParentFile().getAbsolutePath();
+				workingDirectory=workingDirectory.substring(0,workingDirectory.length()-1);
+				workingDirectory=workingDirectory+job.getJobId().replace('.', '_');
+				
+				conf.setWorkingDirectory(workingDirectory+"/");
 			}
-			File directory=new File(conf.getConfiguration().get("mapreduce.output.path"));
-			directory.createNewFile();
+			
+			File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
+			directory.mkdir();
 			
 			InputFormat inputInstance=(InputFormat) Class.forName(conf.getConfiguration().get("mapreduce.input.format")).newInstance();
 			InputSplit[] inputsplit=inputInstance.getSplit(conf, inputpath);
@@ -92,30 +95,19 @@ public class MasterMessageProcessor implements MessageProcessor {
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
 				synchronized(job){
 				ReduceTask reducetask=job.getAvailableReduce(message.getTask());
-				if(!job.getStatus().equals(JobStatus.JOB_FINALL_STATE)){
-					
-					if(reducetask==null){
+					if(!job.getStatus().equals(JobStatus.JOB_FINALL_STATE)){
 						
-						//Magic Number
-						//
-						//Magic Number
-						reducetask=new ReduceTask(message.getTask().getJobId(),"R-"+(new Date()).getTime(),5);
-						reducetask.setStatus(Task.TaskStatus.BEGIN);
-						job.getTaskList().add(reducetask);
-					}
-					if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
-						NodeStatus node=NodeBalance.getLeastBusyNode();
-						node.getTaskList().add(reducetask);
+						if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
+							reducetask.setConf(job.getConf());
+							NodeBalance.assignTask(reducetask);
+						}
+					
+					}else{
 						reducetask.setConf(job.getConf());
+						reducetask.setStatus(TaskStatus.JOB_FINAL);
 						NodeBalance.assignTask(reducetask);
+						System.out.println("Final");
 					}
-				
-				}else{
-					reducetask.setStatus(TaskStatus.JOB_FINAL);
-					NodeStatus node=NodeBalance.getLeastBusyNode();
-					node.getTaskList().add(reducetask);
-					NodeBalance.assignTask(reducetask);
-				}
 				}
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.JOB_FINISHED)){
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
@@ -124,6 +116,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 				collection.add(message.getTask().getOutput());
 				collection.output(conf.getConfiguration().get("mapreduce.output.path"));
 				job.setStatus(Job.JobStatus.JOB_FINISHED);
+				System.out.println("Job Finish");
 			}
 			Task t=message.getTask();
 			String nodeId=t.getNodeId();

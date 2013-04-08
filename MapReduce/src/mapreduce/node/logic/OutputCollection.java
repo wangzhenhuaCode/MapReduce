@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,9 +17,9 @@ import java.util.List;
 import mapreduce.sdk.OutputCollector;
 import mapreduce.sdk.Writable;
 
-public class OutputCollection<K extends Writable, V> implements OutputCollector<K, V> {
+public class OutputCollection<K extends Writable, V> implements OutputCollector<K, V>, Serializable {
 	
-	class Entry<K,V>{
+	class Entry<K,V> implements Serializable{
 		K key;
 		V value;
 		public Entry(K key, V value) {
@@ -29,7 +30,7 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 		
 		
 	}
-	private List<Entry<K,V>> outputList;
+	private ArrayList<Entry<K,V>> outputList;
 	@Override
 	public void collect(K key, V value) throws IOException {
 		Entry<K,V> entry=new Entry<K,V>(key,value);
@@ -54,6 +55,7 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 	public void serialize(String path)throws FileNotFoundException, IOException{
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 		out.writeObject(outputList);
+		System.out.println("write:"+outputList.size());
 		out.close();
 	}
 	public void output(String path) throws IOException {
@@ -64,13 +66,14 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 		}
 		out.close();
 	}
-	public OutputCollection(List<Entry<K, V>> outputList) {
+	public OutputCollection(ArrayList<Entry<K, V>> outputList) {
 		super();
 		this.outputList = outputList;
 	}
 	public void add(String path) throws IOException, ClassNotFoundException{
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
-		outputList.addAll((List<Entry<K, V>>) in.readObject());
+		outputList.addAll((ArrayList<Entry<K, V>>) in.readObject());
+		System.out.println("read:"+outputList.size());
 		in.close();
 	}
 	public List<Entry<K, V>> getOutputList() {

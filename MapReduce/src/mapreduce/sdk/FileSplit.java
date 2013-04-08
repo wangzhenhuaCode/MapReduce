@@ -1,6 +1,8 @@
 package mapreduce.sdk;
 
-public class FileSplit {
+import java.io.Serializable;
+
+public class FileSplit implements Serializable {
 
 	private String path;
 	private long start;

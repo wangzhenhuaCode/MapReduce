@@ -53,34 +53,35 @@ public class MapReduceThreadPool {
 							working++;
 						}
 						try{
+							System.out.println("Reduce!");
 						if(message.getTask() instanceof MapTask){
 							MapTask task=(MapTask)message.getTask();
 							JobConf conf=task.getConf();
 							
 							String mapClassAddr=conf.getConfiguration().get("mapreduce.map.class");
 							String combineClassAddr=conf.getConfiguration().get("mapreduce.combiner.class");
-							URL myurl[]={new URL(conf.getConfiguration().get("mapreduce.jar"))};
+							URL myurl[]={new URL("file:"+conf.getConfiguration().get("mapreduce.jar"))};
 							URLClassLoader loader=new URLClassLoader(myurl);
 							Class mapClass=loader.loadClass(mapClassAddr);
 							Class combineClass=loader.loadClass(combineClassAddr);
-							
-							Class inputFormatClass=Class.forName(task.getConf().getConfiguration().get("mapreduce.input.format"));
+							Class inputFormatClass=loader.loadClass(task.getConf().getConfiguration().get("mapreduce.input.format"));
 							InputFormat instance=(InputFormat) inputFormatClass.newInstance();
 							RecordReader<WrapObject,WrapObject> reader=instance.getRecordReader(task.getInputSplit(), task.getConf(), null);
 							
-							Class outputKeyClass=Class.forName(conf.getConfiguration().get("mapreduce.output.key.class"));
-							Class outputValueClass=Class.forName(conf.getConfiguration().get("mapreduce.output.value.class"));
+							Class outputKeyClass=loader.loadClass(conf.getConfiguration().get("mapreduce.output.key.class"));
+							Class outputValueClass=loader.loadClass(conf.getConfiguration().get("mapreduce.output.value.class"));
 							
 							Mapper map=(Mapper) mapClass.newInstance();
 							
 							
 							WrapObject key=reader.createKey();
 							Class keyClass=key.getClass();
+							System.out.println(reader.getClass().getName());
 							WrapObject value=reader.createValue();
 							Class valueClass=value.getClass();
 							OutputCollection<WrapObject,Writable> outputCollection=new OutputCollection<WrapObject,Writable>();
 							while(reader.next(key, value)){
-								
+								System.out.println("--------------------------------------------------");
 								map.map(keyClass.cast(key),valueClass.cast(value), outputCollection, null);
 								key=reader.createKey();
 								value=reader.createValue();
@@ -115,11 +116,12 @@ public class MapReduceThreadPool {
 							task.setStatus(Task.TaskStatus.END);
 							TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
 							ServerSocketConnection.sendMessage(message2);
+							System.out.println("Map End");
 						}else{
 							ReduceTask task=(ReduceTask)message.getTask();
 							JobConf conf=task.getConf();	
 							String reduceClassAddr=conf.getConfiguration().get("mapreduce.reduce.class");
-							URL myurl[]={new URL(conf.getConfiguration().get("mapreduce.jar"))};
+							URL myurl[]={new URL("file:"+conf.getConfiguration().get("mapreduce.jar"))};
 							URLClassLoader loader=new URLClassLoader(myurl);
 							Class reduceClass=loader.loadClass(reduceClassAddr);
 							Reducer reduce=(Reducer) reduceClass.newInstance();
@@ -154,15 +156,18 @@ public class MapReduceThreadPool {
 							
 							
 							task.setOutput(output);
-							
+							System.out.println(task.getStatus());
 							if(task.getStatus().equals(Task.TaskStatus.JOB_FINAL)){
 								task.setStatus(Task.TaskStatus.JOB_FINISHED);
+								System.out.println("Job Finished");
 							}else{
 								task.setStatus(Task.TaskStatus.END);
 							}
 							TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
 							ServerSocketConnection.sendMessage(message2);
+							System.out.println("Reduce End");
 						}
+						
 						}catch(Exception e){
 							e.printStackTrace();
 						}

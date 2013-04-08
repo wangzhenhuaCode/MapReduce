@@ -12,6 +12,7 @@ public class TextInputFormat extends FileInputFormat<Text, Text> {
 	public RecordReader<Text, Text> getRecordReader(
 			InputSplit input, JobConf conf, Reporter reporter) throws IOException {
 		// TODO Auto-generated method stub
+		
 		return new LineRecordReader(input);
 	}
 

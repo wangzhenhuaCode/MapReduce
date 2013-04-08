@@ -55,6 +55,7 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 		if(empty)return !empty;
 		if(pos<file.getEnd()){
 			String v=reader.readLine();
+			System.out.println("line:"+v);
 			value.setValue(v);
 			pos+=v.getBytes().length;
 			key.setValue(file.getPath()+":"+pos);
@@ -70,6 +71,7 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 				file=input.getFileList().get(curFile);
 				reader=new RandomAccessFile(new File(file.getPath()),"r");
 				String v=reader.readLine();
+				System.out.println("line:"+v);
 				value.setValue(v);
 				pos+=v.getBytes().length;
 				key.setValue(file.getPath()+":"+pos);

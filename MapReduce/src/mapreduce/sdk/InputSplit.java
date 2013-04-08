@@ -1,9 +1,10 @@
 package mapreduce.sdk;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InputSplit {
+public class InputSplit implements Serializable {
 	private List<FileSplit> fileList;
 
 	public List<FileSplit> getFileList() {

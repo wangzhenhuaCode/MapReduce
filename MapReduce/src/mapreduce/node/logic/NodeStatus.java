@@ -1,10 +1,11 @@
 package mapreduce.node.logic;
 
+import java.io.Serializable;
 import java.util.List;
 
 import mapreduce.node.configuration.Configuration;
 
-public class NodeStatus {
+public class NodeStatus implements Serializable {
 
 	private Configuration configuration;
 	private Integer running;
@@ -49,7 +50,8 @@ public class NodeStatus {
 		this.taskList = taskList;
 	}
 	public void addTask(Task task){
-		task.setNodeId(NodeId);
+		taskList.add(task);
+		
 		
 	}
 	

@@ -19,7 +19,7 @@ public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 			if(!subFile.equals(""))
 				inputPath=inputPath+subFile+",";
 		}else{
-			inputPath=path;
+			inputPath=root.getAbsolutePath();
 		}
 		while(inputPath.endsWith(",")){
 			inputPath=inputPath.substring(0, inputPath.length()-1);
@@ -35,7 +35,7 @@ public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 				if(!subFile.equals(""))
 					path=path+subFile+",";
 			}else{
-				path=path+file.getPath()+",";
+				path=path+file.getAbsolutePath()+",";
 			}
 		}
 		return path;

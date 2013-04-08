@@ -67,6 +67,7 @@ public class NodeBalance {
 			}
 		}
 		node.setUpdated(true);
+		node.setTaskList(new ArrayList<Task>());
 		NodeSystem.nodeList.add(node);
 		}
 	}
@@ -82,7 +83,8 @@ public class NodeBalance {
 				Task task=taskList.get(cur);
 				NodeStatus node=NodeSystem.nodeList.get(count);
 				task.setNodeId(node.getNodeId());
-				task.setStatus(Task.TaskStatus.BEGIN);
+				if(task.getStatus()==null)
+					task.setStatus(Task.TaskStatus.BEGIN);
 				TaskMessage message =new TaskMessage(node.getConfiguration().getLocalHostName(),node.getConfiguration().getLocalPort(),task);
 				try {
 					ServerSocketConnection.sendMessage(message);
@@ -106,7 +108,8 @@ public class NodeBalance {
 		sort();
 		NodeStatus node=NodeSystem.nodeList.get(cur);
 		task.setNodeId(node.getNodeId());
-		task.setStatus(Task.TaskStatus.BEGIN);
+		if(task.getStatus()==null)
+			task.setStatus(Task.TaskStatus.BEGIN);
 		TaskMessage message =new TaskMessage(node.getConfiguration().getLocalHostName(),node.getConfiguration().getLocalPort(),task);
 		try {
 			ServerSocketConnection.sendMessage(message);
