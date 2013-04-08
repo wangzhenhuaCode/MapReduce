@@ -27,8 +27,7 @@ public class Message implements Serializable{
 	}
 	
 	public Message(String receiverHost, Integer receiverPort) {
-		this.senderHost = NodeSystem.configuration.getLocalHostName();
-		this.senderPort = NodeSystem.configuration.getLocalPort();
+
 		this.receiverHost = receiverHost;
 		this.receiverPort = receiverPort;
 	}

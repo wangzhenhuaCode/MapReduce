@@ -18,7 +18,7 @@ public class Node {
 		return node;
 	}
 	public void connect()throws Exception{
-		ServerSocketConnection.createServerSocketConnection(NodeSystem.configuration.getLocalPort());
+		
 	}
 	
 }

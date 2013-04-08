@@ -67,7 +67,11 @@ public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 		
 		}
 		list.add(inputsplit);
-		return (InputSplit[])list.toArray();
+		InputSplit[] input=new InputSplit[list.size()];
+		for(int i=0;i<list.size();i++){
+			input[i]=list.get(i);
+		}
+		return input;
 		
 	}
 	

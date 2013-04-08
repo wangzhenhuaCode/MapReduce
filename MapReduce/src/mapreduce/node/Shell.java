@@ -16,7 +16,7 @@ public class Shell {
 	public static void createNewJobShell(){
 		try {
 			File jarFile = new File(Shell.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-			String jarName=jarFile.getName();
+			String jarName=jarFile.getAbsolutePath();
 			shellscript=shellscript.replaceAll("%JAR%", jarName);
 			shellscript=shellscript.replaceAll("%HOST%", NodeSystem.configuration.getMasterHostName());
 			shellscript=shellscript.replaceAll("%PORT%", NodeSystem.configuration.getMasterPort().toString());

@@ -15,7 +15,7 @@ public class Slave extends Node {
 	public Slave(){
 		super();
 		try {
-			connect();
+			ServerSocketConnection.createServerSocketConnection(NodeSystem.configuration.getLocalPort());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

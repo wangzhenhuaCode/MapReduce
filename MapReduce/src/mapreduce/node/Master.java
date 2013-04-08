@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import mapreduce.node.connection.MessageThreadPool;
+import mapreduce.node.connection.ServerSocketConnection;
 import mapreduce.node.logic.Job;
 import mapreduce.node.logic.MasterMessageProcessor;
 import mapreduce.node.logic.MessageProcessor;
@@ -14,7 +15,7 @@ public class Master extends Node {
 	public Master(){
 		super();
 		try {
-			connect();
+			ServerSocketConnection.createServerSocketConnection(NodeSystem.configuration.getLocalPort());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -7,7 +7,7 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LineRecordReader implements RecordReader<WrapObject<String>, WrapObject<String>> {
+public class LineRecordReader implements RecordReader<Text, Text> {
 
 	private InputSplit input;
 	private RandomAccessFile reader;
@@ -51,7 +51,7 @@ public class LineRecordReader implements RecordReader<WrapObject<String>, WrapOb
 	}
 
 	@Override
-	public boolean next(WrapObject<String> key, WrapObject<String> value) throws IOException {
+	public boolean next(Text key, Text value) throws IOException {
 		if(empty)return !empty;
 		if(pos<file.getEnd()){
 			String v=reader.readLine();
@@ -80,15 +80,15 @@ public class LineRecordReader implements RecordReader<WrapObject<String>, WrapOb
 	}
 
 	@Override
-	public WrapObject<String> createKey() {
+	public Text createKey() {
 		// TODO Auto-generated method stub
-		return new WrapObject<String>("");
+		return new Text("");
 	}
 
 	@Override
-	public WrapObject<String> createValue() {
+	public Text createValue() {
 		// TODO Auto-generated method stub
-		return new WrapObject<String>("");
+		return new Text("");
 	}
 
 	

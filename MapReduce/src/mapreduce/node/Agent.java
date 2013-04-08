@@ -19,6 +19,7 @@ public class Agent {
 	 */
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		// TODO Auto-generated method stub
+		
 		ObjectInputStream in = new ObjectInputStream(System.in);
 		JobConf conf=(JobConf)in.readObject();
 		in.close();
