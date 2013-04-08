@@ -16,7 +16,7 @@ public class WrapObject<T extends Comparable<T>> implements Writable<T>{
 	@Override
 	public boolean equals(Object obj) {
 		// TODO Auto-generated method stub
-		return value.equals(obj);
+		return value.equals(((WrapObject)obj).value);
 	}
 
 	@Override

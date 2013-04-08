@@ -81,8 +81,8 @@ public class MapReduceThreadPool {
 							Class valueClass=value.getClass();
 							OutputCollection<WrapObject,Writable> outputCollection=new OutputCollection<WrapObject,Writable>();
 							while(reader.next(key, value)){
-								System.out.println("--------------------------------------------------");
-								map.map(keyClass.cast(key),valueClass.cast(value), outputCollection, null);
+								if(key.getValue()!=null)
+									map.map(keyClass.cast(key),valueClass.cast(value), outputCollection, null);
 								key=reader.createKey();
 								value=reader.createValue();
 								
@@ -91,23 +91,28 @@ public class MapReduceThreadPool {
 							OutputCollection<WrapObject,Writable> combineCollection=new OutputCollection<WrapObject,Writable>();
 							List<Writable> list=new ArrayList<Writable>();
 							WrapObject k=null;
+							outputCollection.sort();
 							for(int i=0;i<outputCollection.getOutputList().size();i++){
 								if(k==null){
 									k=outputCollection.getOutputList().get(i).key;
 									list.add(outputCollection.getOutputList().get(i).value);
 								}else{
 									if(!k.equals(outputCollection.getOutputList().get(i).key)){
+									
 										combine.reduce(k, list.iterator(), combineCollection, null);
 										list=new ArrayList<Writable>();
 										k=outputCollection.getOutputList().get(i).key;
+							
 										list.add(outputCollection.getOutputList().get(i).value);
 										
 									}else{
-										list.add(outputCollection.getOutputList().get(i).key);
+										list.add(outputCollection.getOutputList().get(i).value);
 									}
 									
 								}
 							}
+							
+							if(k!=null)
 							combine.reduce(k, list.iterator(), combineCollection, null);
 							String output=conf.getConfiguration().get("mapreduce.workingDirectory")+task.getJobId()+"_"+task.getTaskId();
 							combineCollection.serialize(output);
@@ -132,23 +137,28 @@ public class MapReduceThreadPool {
 							for(Task t:task.getSourceTaskList()){
 								combineCollection.add(t.getOutput());
 							}
+							combineCollection.sort();
+							
 							for(int i=0;i<combineCollection.getOutputList().size();i++){
 								if(k==null){
 									k=combineCollection.getOutputList().get(i).key;
 									list.add(combineCollection.getOutputList().get(i).value);
 								}else{
 									if(!k.equals(combineCollection.getOutputList().get(i).key)){
+										
 										reduce.reduce(k, list.iterator(), reduceCollection, null);
 										list=new ArrayList<Writable>();
 										k=combineCollection.getOutputList().get(i).key;
+									
 										list.add(combineCollection.getOutputList().get(i).value);
 										
 									}else{
-										list.add(combineCollection.getOutputList().get(i).key);
+										list.add(combineCollection.getOutputList().get(i).value);
 									}
 									
 								}
 							}
+							if(k!=null)
 							reduce.reduce(k, list.iterator(), reduceCollection, null);
 							String output=conf.getConfiguration().get("mapreduce.workingDirectory")+task.getJobId()+"_"+task.getTaskId();
 							reduceCollection.serialize(output);

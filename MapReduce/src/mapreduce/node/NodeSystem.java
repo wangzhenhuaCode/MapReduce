@@ -1,6 +1,7 @@
 package mapreduce.node;
 
-import java.util.HashMap;
+
+import java.util.Hashtable;
 import java.util.List;
 
 import mapreduce.node.configuration.Configuration;
@@ -11,5 +12,5 @@ public class NodeSystem {
 	public static Configuration configuration;
 	public static Node node;
 	public static List<NodeStatus> nodeList;
-	public static HashMap<String,Job> jobList;
+	public static Hashtable<String,Job> jobList;
 }

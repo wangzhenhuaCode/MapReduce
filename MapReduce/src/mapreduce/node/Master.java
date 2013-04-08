@@ -1,7 +1,7 @@
 package mapreduce.node;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Hashtable;
 
 import mapreduce.node.connection.MessageThreadPool;
 import mapreduce.node.connection.ServerSocketConnection;
@@ -20,7 +20,7 @@ public class Master extends Node {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		NodeSystem.jobList=new HashMap<String,Job>();
+		NodeSystem.jobList=new Hashtable<String,Job>();
 		NodeSystem.nodeList=new ArrayList<NodeStatus>();
 		NodeBalance.init();
 		MessageProcessor processor=new MasterMessageProcessor();

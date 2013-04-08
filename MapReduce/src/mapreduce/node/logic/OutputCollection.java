@@ -45,6 +45,8 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 
 			@Override
 			public int compare(Entry<K, V> arg0, Entry<K, V> arg1) {
+				if(arg0.key==null||arg1.key==null)
+					System.out.println(arg0.value+"--------------------"+arg1.value);
 				return arg0.key.compareTo(arg1.key);
 				
 			}
@@ -55,7 +57,6 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 	public void serialize(String path)throws FileNotFoundException, IOException{
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
 		out.writeObject(outputList);
-		System.out.println("write:"+outputList.size());
 		out.close();
 	}
 	public void output(String path) throws IOException {
@@ -73,7 +74,6 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 	public void add(String path) throws IOException, ClassNotFoundException{
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
 		outputList.addAll((ArrayList<Entry<K, V>>) in.readObject());
-		System.out.println("read:"+outputList.size());
 		in.close();
 	}
 	public List<Entry<K, V>> getOutputList() {

@@ -83,17 +83,20 @@ public class MasterMessageProcessor implements MessageProcessor {
 				MapTask task=new MapTask(job.getJobId(),"M+"+i);
 				task.setInputSplit(inputsplit[i]);
 				task.setConf(conf);
+				task.setStatus(TaskStatus.BEGIN);
 				job.getTaskList().add(task);
 			}
-			NodeBalance.assignTask(job.getTaskList());
 			NodeSystem.jobList.put(job.getJobId(), job);
+			NodeBalance.assignTask(job.getTaskList());
+			
 		}
 	}
 	private void processTaskMessage(TaskMessage message) throws IOException, ClassNotFoundException{
 		
 			if(message.getTask().getStatus().equals(Task.TaskStatus.END)){
+				System.out.println("job:"+message.getTask().getJobId());
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
-				synchronized(job){
+				
 				ReduceTask reducetask=job.getAvailableReduce(message.getTask());
 					if(!job.getStatus().equals(JobStatus.JOB_FINALL_STATE)){
 						
@@ -108,7 +111,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 						NodeBalance.assignTask(reducetask);
 						System.out.println("Final");
 					}
-				}
+				
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.JOB_FINISHED)){
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
 				JobConf conf=job.getConf();

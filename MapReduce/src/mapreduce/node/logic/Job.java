@@ -50,12 +50,12 @@ public class Job implements Serializable {
 		taskList=new ArrayList<Task>();
 	}
 
-	public ReduceTask getAvailableReduce(Task task){
+	public synchronized ReduceTask getAvailableReduce(Task task){
 		ReduceTask reduce=null;
 		int unfinished=0;
 		
 		Boolean added=false;
-		synchronized(taskList){
+		
 			for(int i=0;i<taskList.size();i++){
 				Task t=taskList.get(i);
 				if(t.getStatus().equals(Task.TaskStatus.BEGIN)){
@@ -88,7 +88,7 @@ public class Job implements Serializable {
 				reduce.setStatus(Task.TaskStatus.BEGIN);
 				taskList.add(reduce);
 			}
-		}
+		
 		System.out.println(unfinished);
 		if(unfinished==1&&added){
 			this.status=JobStatus.JOB_FINALL_STATE;

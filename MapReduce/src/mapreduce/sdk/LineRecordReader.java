@@ -28,7 +28,8 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 		reader.seek(pos);
 		long len=reader.length();
 		while(pos<len){
-			if((reader.read())=='\n'){
+			char c=(char) reader.read();
+			if(c=='\n'||c=='\r'){
 				pos++;
 				break;
 			}
@@ -55,7 +56,6 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 		if(empty)return !empty;
 		if(pos<file.getEnd()){
 			String v=reader.readLine();
-			System.out.println("line:"+v);
 			value.setValue(v);
 			pos+=v.getBytes().length;
 			key.setValue(file.getPath()+":"+pos);
@@ -71,7 +71,6 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 				file=input.getFileList().get(curFile);
 				reader=new RandomAccessFile(new File(file.getPath()),"r");
 				String v=reader.readLine();
-				System.out.println("line:"+v);
 				value.setValue(v);
 				pos+=v.getBytes().length;
 				key.setValue(file.getPath()+":"+pos);
