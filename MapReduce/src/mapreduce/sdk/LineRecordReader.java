@@ -27,13 +27,15 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 		pos=file.getStart();
 		reader.seek(pos);
 		long len=reader.length();
-		while(pos<len){
-			char c=(char) reader.read();
-			if(c=='\n'||c=='\r'){
+		if(pos>0){
+			while(pos<len){
+				char c=(char) reader.read();
+				if(c=='\n'||c=='\r'){
+					pos++;
+					break;
+				}
 				pos++;
-				break;
 			}
-			pos++;
 		}
 		if(pos>=len-1){
 			pos=0;
@@ -54,10 +56,10 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 	@Override
 	public boolean next(Text key, Text value) throws IOException {
 		if(empty)return !empty;
-		if(pos<file.getEnd()){
-			String v=reader.readLine();
-			value.setValue(v);
-			pos+=v.getBytes().length;
+		String line;
+		if((line=reader.readLine())!=null&&pos<file.getEnd()){
+			value.setValue(line);
+			pos+=line.getBytes().length;
 			key.setValue(file.getPath()+":"+pos);
 			return true;
 		}else{
@@ -70,9 +72,9 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 			}else{
 				file=input.getFileList().get(curFile);
 				reader=new RandomAccessFile(new File(file.getPath()),"r");
-				String v=reader.readLine();
-				value.setValue(v);
-				pos+=v.getBytes().length;
+				line=reader.readLine();
+				value.setValue(line);
+				pos+=line.getBytes().length;
 				key.setValue(file.getPath()+":"+pos);
 				return true;
 			}

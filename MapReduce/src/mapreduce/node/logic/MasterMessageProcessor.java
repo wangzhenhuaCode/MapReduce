@@ -98,28 +98,24 @@ public class MasterMessageProcessor implements MessageProcessor {
 				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
 				
 				ReduceTask reducetask=job.getAvailableReduce(message.getTask());
-					if(!job.getStatus().equals(JobStatus.JOB_FINALL_STATE)){
+					if(job.getStatus().equals(JobStatus.JOB_FINALL_STATE)){
 						
-						if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
-							reducetask.setConf(job.getConf());
-							NodeBalance.assignTask(reducetask);
-						}
-					
-					}else{
 						reducetask.setConf(job.getConf());
 						reducetask.setStatus(TaskStatus.JOB_FINAL);
 						NodeBalance.assignTask(reducetask);
 						System.out.println("Final");
+					
+					}else if(job.getStatus().equals(JobStatus.JOB_FINISHED)){
+						finshJob(message);
+					}else{
+						if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
+							reducetask.setConf(job.getConf());
+							NodeBalance.assignTask(reducetask);
+						}
 					}
 				
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.JOB_FINISHED)){
-				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
-				JobConf conf=job.getConf();
-				OutputCollection<WrapObject,Writable> collection=new OutputCollection<WrapObject,Writable>();
-				collection.add(message.getTask().getOutput());
-				collection.output(conf.getConfiguration().get("mapreduce.output.path"));
-				job.setStatus(Job.JobStatus.JOB_FINISHED);
-				System.out.println("Job Finish");
+				finshJob(message);
 			}
 			Task t=message.getTask();
 			String nodeId=t.getNodeId();
@@ -135,6 +131,15 @@ public class MasterMessageProcessor implements MessageProcessor {
 	}
 	private void processNodeMessage(NodeMessage message){
 		NodeBalance.updateNode(message.getNode());
+	}
+	private void finshJob(TaskMessage message) throws IOException, ClassNotFoundException{
+		Job job=NodeSystem.jobList.get(message.getTask().getJobId());
+		JobConf conf=job.getConf();
+		OutputCollection<WrapObject,Writable> collection=new OutputCollection<WrapObject,Writable>();
+		collection.add(message.getTask().getOutput());
+		collection.output(conf.getConfiguration().get("mapreduce.output.path"));
+		job.setStatus(Job.JobStatus.JOB_FINISHED);
+		System.out.println("Job Finish");
 	}
 
 

@@ -86,12 +86,16 @@ public class Job implements Serializable {
 			if(!added){
 				reduce=new ReduceTask(jobId,"R-"+(new Date()).getTime(),5);
 				reduce.setStatus(Task.TaskStatus.BEGIN);
+				reduce.getSourceTaskList().add(task);
 				taskList.add(reduce);
 			}
 		
 		System.out.println(unfinished);
 		if(unfinished==1&&added){
 			this.status=JobStatus.JOB_FINALL_STATE;
+		}
+		if(unfinished==0){
+			this.status=JobStatus.JOB_FINISHED;
 		}
 		return reduce;
 	}

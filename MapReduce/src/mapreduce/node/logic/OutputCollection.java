@@ -45,8 +45,6 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 
 			@Override
 			public int compare(Entry<K, V> arg0, Entry<K, V> arg1) {
-				if(arg0.key==null||arg1.key==null)
-					System.out.println(arg0.value+"--------------------"+arg1.value);
 				return arg0.key.compareTo(arg1.key);
 				
 			}
