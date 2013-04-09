@@ -56,29 +56,28 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 	@Override
 	public boolean next(Text key, Text value) throws IOException {
 		if(empty)return !empty;
-		String line;
-		if((line=reader.readLine())!=null&&pos<file.getEnd()){
-			value.setValue(line);
-			pos+=line.getBytes().length;
-			key.setValue(file.getPath()+":"+pos);
-			return true;
-		}else{
-			reader.close();
-			curFile++;
-			pos=0;
-			if(curFile>=input.getFileList().size()){
-				empty=true;
-				return !empty;
+		while(true){
+			if(pos>=reader.length()){
+				reader.close();
+				curFile++;
+				pos=0;
+				if(curFile>=input.getFileList().size()){
+					return false;
+				}else{
+					file=input.getFileList().get(curFile);
+					reader=new RandomAccessFile(new File(file.getPath()),"r");
+				}
 			}else{
-				file=input.getFileList().get(curFile);
-				reader=new RandomAccessFile(new File(file.getPath()),"r");
-				line=reader.readLine();
+				if(pos>file.getEnd())
+					return false;
+				String line=readLine();
 				value.setValue(line);
-				pos+=line.getBytes().length;
 				key.setValue(file.getPath()+":"+pos);
 				return true;
 			}
+			
 		}
+
 		
 	}
 
@@ -94,7 +93,18 @@ public class LineRecordReader implements RecordReader<Text, Text> {
 		return new Text("");
 	}
 
-	
+	private String readLine() throws IOException{
+		StringBuffer line=new StringBuffer();
+		while(true){
+			char c=(char) reader.read();
+			pos++;
+			if(c=='\n'||c=='\r'||c==-1){
+				break;
+			}
+			line.append(c);
+		}
+		return new String(line);
+	}
 	
 	
 	

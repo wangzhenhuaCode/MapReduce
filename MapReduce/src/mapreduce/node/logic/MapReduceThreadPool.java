@@ -53,7 +53,7 @@ public class MapReduceThreadPool {
 							working++;
 						}
 						try{
-							System.out.println("Reduce!");
+							
 						if(message.getTask() instanceof MapTask){
 							MapTask task=(MapTask)message.getTask();
 							JobConf conf=task.getConf();
@@ -76,7 +76,6 @@ public class MapReduceThreadPool {
 							
 							WrapObject key=reader.createKey();
 							Class keyClass=key.getClass();
-							System.out.println(reader.getClass().getName());
 							WrapObject value=reader.createValue();
 							Class valueClass=value.getClass();
 							OutputCollection<WrapObject,Writable> outputCollection=new OutputCollection<WrapObject,Writable>();
@@ -121,7 +120,7 @@ public class MapReduceThreadPool {
 							task.setStatus(Task.TaskStatus.END);
 							TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
 							ServerSocketConnection.sendMessage(message2);
-							System.out.println("Map End");
+							
 						}else{
 							ReduceTask task=(ReduceTask)message.getTask();
 							JobConf conf=task.getConf();	
@@ -166,16 +165,16 @@ public class MapReduceThreadPool {
 							
 							
 							task.setOutput(output);
-							System.out.println(task.getStatus());
+							
 							if(task.getStatus().equals(Task.TaskStatus.JOB_FINAL)){
 								task.setStatus(Task.TaskStatus.JOB_FINISHED);
-								System.out.println("Job Finished");
+								
 							}else{
 								task.setStatus(Task.TaskStatus.END);
 							}
 							TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
 							ServerSocketConnection.sendMessage(message2);
-							System.out.println("Reduce End");
+							
 						}
 						
 						}catch(Exception e){

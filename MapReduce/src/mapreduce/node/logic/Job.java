@@ -90,7 +90,6 @@ public class Job implements Serializable {
 				taskList.add(reduce);
 			}
 		
-		System.out.println(unfinished);
 		if(unfinished==1&&added){
 			this.status=JobStatus.JOB_FINALL_STATE;
 		}
