@@ -35,6 +35,7 @@ public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 				if(!subFile.equals(""))
 					path=path+subFile+",";
 			}else{
+				if(!file.isHidden())
 				path=path+file.getAbsolutePath()+",";
 			}
 		}

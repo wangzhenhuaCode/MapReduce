@@ -66,7 +66,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 			String[] inputpath=conf.getConfiguration().get("mapreduce.input.path").split(",");
 			File output=new File(conf.getConfiguration().get("mapreduce.output.path"));
 			if(!conf.getConfiguration().containsKey("mapreduce.workingDirectory")){
-				String workingDirectory=output.getParentFile().getAbsolutePath();
+				String workingDirectory=output.getAbsolutePath();
 				workingDirectory=workingDirectory.substring(0,workingDirectory.length()-1);
 				workingDirectory=workingDirectory+job.getJobId().replace('.', '_');
 				
@@ -138,6 +138,9 @@ public class MasterMessageProcessor implements MessageProcessor {
 		OutputCollection<WrapObject,Writable> collection=new OutputCollection<WrapObject,Writable>();
 		collection.add(message.getTask().getOutput());
 		collection.output(conf.getConfiguration().get("mapreduce.output.path"));
+		File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
+		directory.delete();
+		job.getTaskList().clear();
 		job.setStatus(Job.JobStatus.JOB_FINISHED);
 		
 	}
