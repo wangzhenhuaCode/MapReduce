@@ -6,14 +6,16 @@ import java.util.Date;
 import java.util.List;
 
 import mapreduce.sdk.JobConf;
+import mapreduce.sdk.Reporter;
 
 public class Job implements Serializable {
-	public static enum JobStatus{JOB_INIT, JOB_FINALL_STATE,JOB_FINISHED};
+	public static enum JobStatus{JOB_INIT, JOB_FINALL_STATE,JOB_FINISHED,JOB_TERMINATED};
 	private JobConf conf;
 	private JobStatus status;
 	private String jobId;
 	private transient List<Task> taskList;
-
+	private Reporter report;
+	
 	public JobConf getConf() {
 		return conf;
 	}
@@ -33,6 +35,7 @@ public class Job implements Serializable {
 		this.status = status;
 		this.jobId = jobId;
 		taskList=new ArrayList<Task>();
+		this.report=new RemoteReport();
 	}
 	public String getJobId() {
 		return jobId;
@@ -48,6 +51,7 @@ public class Job implements Serializable {
 	}
 	public Job() {
 		taskList=new ArrayList<Task>();
+		this.report=new RemoteReport();
 	}
 
 	public synchronized ReduceTask getAvailableReduce(Task task){
@@ -62,6 +66,8 @@ public class Job implements Serializable {
 					unfinished++;
 					if(task.getTaskId().equals(t.getTaskId())){
 						t.setStatus(Task.TaskStatus.END);
+						this.report.getLog().concat(task.getReporter().getLog());
+						task.setReporter(null);
 						unfinished--;
 					}
 					if(t instanceof ReduceTask){
@@ -97,6 +103,12 @@ public class Job implements Serializable {
 			this.status=JobStatus.JOB_FINISHED;
 		}
 		return reduce;
+	}
+	public Reporter getReport() {
+		return report;
+	}
+	public void setReport(Reporter report) {
+		this.report = report;
 	}
 	
 	

@@ -21,7 +21,7 @@ public class Shell {
 			shellscript=shellscript.replaceAll("%HOST%", NodeSystem.configuration.getMasterHostName());
 			shellscript=shellscript.replaceAll("%PORT%", NodeSystem.configuration.getMasterPort().toString());
 			try {
-				FileOutputStream out=new FileOutputStream(jarFile.getParentFile().getPath()+"/MapReduce");
+				FileOutputStream out=new FileOutputStream(jarFile.getParentFile().getPath()+"/new-job");
 				out.write(shellscript.getBytes());
 				out.close();
 			} catch (FileNotFoundException e) {
@@ -33,7 +33,7 @@ public class Shell {
 			}
 			Runtime run = Runtime.getRuntime();
 			try {
-				run.exec("chmod u+x MapReduce");
+				run.exec("chmod u+x new-job");
 		
 				
 			} catch (IOException e) {

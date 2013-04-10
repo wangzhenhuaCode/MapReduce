@@ -1,7 +1,8 @@
 package mapreduce.sdk;
 
-public interface Reporter {
-	public long getCounter(Enum<?> key);
-	public void incrCounter(Enum<?> key, long amount);
-	public void setStatus(String status);
+import java.io.Serializable;
+
+public interface Reporter extends Serializable {
+	public void log(String logInfo);
+	public String getLog();
 }

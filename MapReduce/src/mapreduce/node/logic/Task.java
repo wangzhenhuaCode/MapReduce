@@ -4,21 +4,23 @@ import java.io.Serializable;
 
 
 import mapreduce.sdk.JobConf;
+import mapreduce.sdk.Reporter;
 
 public class Task implements Serializable {
-	public enum TaskStatus{BEGIN,END,JOB_FINAL,JOB_FINISHED}
+	public enum TaskStatus{BEGIN,END,JOB_FINAL,JOB_FINISHED,ERROR}
 	private String jobId;
 	private String taskId;
 	private TaskStatus status;
 	private String output;
 	private JobConf conf;
 	private String nodeId;
-	
+	private Reporter reporter;
 	
 	public Task(String jobId, String taskId) {
 		super();
 		this.jobId = jobId;
 		this.taskId = taskId;
+		this.reporter=new RemoteReport();
 	}
 
 	public String getJobId() {
@@ -79,6 +81,14 @@ public class Task implements Serializable {
 		if(t.jobId.equals(this.jobId)&&t.taskId.equals(this.taskId))
 			return true;
 		else return false;
+	}
+
+	public Reporter getReporter() {
+		return reporter;
+	}
+
+	public void setReporter(Reporter reporter) {
+		this.reporter = reporter;
 	}
 
 	

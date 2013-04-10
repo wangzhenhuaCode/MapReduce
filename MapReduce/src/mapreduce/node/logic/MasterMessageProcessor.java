@@ -87,15 +87,19 @@ public class MasterMessageProcessor implements MessageProcessor {
 				job.getTaskList().add(task);
 			}
 			NodeSystem.jobList.put(job.getJobId(), job);
+			job.getReport().log("Map to "+job.getTaskList().size()+" tasks");
 			NodeBalance.assignTask(job.getTaskList());
 			
 		}
 	}
 	private void processTaskMessage(TaskMessage message) throws IOException, ClassNotFoundException{
-		
+		Job job=NodeSystem.jobList.get(message.getTask().getJobId());
+		if(job.getStatus().equals(JobStatus.JOB_TERMINATED)){
+			removeTask(message.getTask());
+			return;
+		}
 			if(message.getTask().getStatus().equals(Task.TaskStatus.END)){
 			
-				Job job=NodeSystem.jobList.get(message.getTask().getJobId());
 				
 				ReduceTask reducetask=job.getAvailableReduce(message.getTask());
 					if(job.getStatus().equals(JobStatus.JOB_FINALL_STATE)){
@@ -116,21 +120,32 @@ public class MasterMessageProcessor implements MessageProcessor {
 				
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.JOB_FINISHED)){
 				finshJob(message);
+			}else if(message.getTask().getStatus().equals(Task.TaskStatus.ERROR)){
+				JobConf conf=job.getConf();
+				File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
+				directory.delete();
+				job.getTaskList().clear();
+				job.getReport().log("Job terminated");
+				job.setConf(null);
+				job.setStatus(Job.JobStatus.JOB_TERMINATED);
 			}
-			Task t=message.getTask();
-			String nodeId=t.getNodeId();
-			NodeStatus node=null;
-			for(NodeStatus n:NodeSystem.nodeList){
-				if(n.getNodeId().equals(nodeId)){
-					node=n;
-					break;
-				}
-			}
-			node.getTaskList().remove(t);
+			removeTask(message.getTask());
+			
 		
 	}
 	private void processNodeMessage(NodeMessage message){
 		NodeBalance.updateNode(message.getNode());
+	}
+	private void removeTask(Task task){
+		String nodeId=task.getNodeId();
+		NodeStatus node=null;
+		for(NodeStatus n:NodeSystem.nodeList){
+			if(n.getNodeId().equals(nodeId)){
+				node=n;
+				break;
+			}
+		}
+		node.getTaskList().remove(task);
 	}
 	private void finshJob(TaskMessage message) throws IOException, ClassNotFoundException{
 		Job job=NodeSystem.jobList.get(message.getTask().getJobId());
@@ -141,6 +156,8 @@ public class MasterMessageProcessor implements MessageProcessor {
 		File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
 		directory.delete();
 		job.getTaskList().clear();
+		job.setConf(null);
+		job.getReport().log("Job finished");
 		job.setStatus(Job.JobStatus.JOB_FINISHED);
 		
 	}
