@@ -10,8 +10,10 @@ import java.util.List;
 
 import mapreduce.node.NodeSystem;
 import mapreduce.node.connection.Message;
+import mapreduce.node.connection.MgtMessage;
 import mapreduce.node.connection.ServerSocketConnection;
 import mapreduce.node.connection.TaskMessage;
+import mapreduce.node.connection.MgtMessage.Operation;
 import mapreduce.sdk.InputFormat;
 import mapreduce.sdk.JobConf;
 import mapreduce.sdk.Mapper;
@@ -28,11 +30,18 @@ public class SlaveMessageProcessor implements MessageProcessor {
 		// TODO Auto-generated method stub
 		if(message instanceof TaskMessage){
 			processTaskMessage((TaskMessage)message);
+		}else if(message instanceof MgtMessage){
+			processMgtMessage((MgtMessage)message);
 		}
 
 	}
 	private void processTaskMessage(TaskMessage message) {
 		MapReduceThreadPool.newTask(message);
+	}
+	private void processMgtMessage(MgtMessage message){
+		if(message.getOperation().equals(Operation.SHUT_DOWN)){
+			System.exit(0);
+		}
 	}
 	
 

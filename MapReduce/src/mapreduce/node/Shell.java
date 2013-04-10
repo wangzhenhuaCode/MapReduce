@@ -7,22 +7,24 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Shell {
-	private static String shellscript="#! /bin/bash\n" +
+	private static String newJobScript="#! /bin/bash\n" +
 			"if [ $# -eq 3 ]; then \n" +
 			" java -jar $1 $2 $3 | java -classpath %JAR% "+Agent.class.getName() +" %HOST% %PORT% \n" +
 					"else \n" +
 					"echo Incorrect arguments. \n" +
 					"fi";
+	private static String shutDownScript="#! /bin/bash\n" +
+			""
 	public static void createNewJobShell(){
 		try {
 			File jarFile = new File(Shell.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 			String jarName=jarFile.getAbsolutePath();
-			shellscript=shellscript.replaceAll("%JAR%", jarName);
-			shellscript=shellscript.replaceAll("%HOST%", NodeSystem.configuration.getMasterHostName());
-			shellscript=shellscript.replaceAll("%PORT%", NodeSystem.configuration.getMasterPort().toString());
+			newJobScript=newJobScript.replaceAll("%JAR%", jarName);
+			newJobScript=newJobScript.replaceAll("%HOST%", NodeSystem.configuration.getMasterHostName());
+			newJobScript=newJobScript.replaceAll("%PORT%", NodeSystem.configuration.getMasterPort().toString());
 			try {
 				FileOutputStream out=new FileOutputStream(jarFile.getParentFile().getPath()+"/new-job");
-				out.write(shellscript.getBytes());
+				out.write(newJobScript.getBytes());
 				out.close();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block

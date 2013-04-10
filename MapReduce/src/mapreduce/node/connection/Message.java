@@ -72,4 +72,13 @@ public class Message implements Serializable{
 	public void setReceiverPort(Integer receiverPort) {
 		this.receiverPort = receiverPort;
 	}
+	public void swapAddress(){
+		Integer temp;String temp2;
+		temp2=this.receiverHost;
+		this.receiverHost=this.senderHost;
+		this.senderHost=temp2;
+		temp=this.receiverPort;
+		this.receiverPort=this.senderPort;
+		this.senderPort=this.receiverPort;
+	}
 }

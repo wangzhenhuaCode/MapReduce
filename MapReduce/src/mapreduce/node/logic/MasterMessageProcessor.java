@@ -2,14 +2,19 @@ package mapreduce.node.logic;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
+
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+
 
 
 import mapreduce.node.NodeSystem;
 import mapreduce.node.connection.JobMessage;
 import mapreduce.node.connection.Message;
+import mapreduce.node.connection.MgtMessage;
+import mapreduce.node.connection.ServerSocketConnection;
+import mapreduce.node.connection.MgtMessage.Operation;
 import mapreduce.node.connection.NodeMessage;
 import mapreduce.node.connection.TaskMessage;
 import mapreduce.node.logic.Job.JobStatus;
@@ -54,8 +59,15 @@ public class MasterMessageProcessor implements MessageProcessor {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}else{
+		}else if(message instanceof NodeMessage){
 			processNodeMessage((NodeMessage)message);
+		}else if(message instanceof MgtMessage){
+			try {
+				processMgtMessage((MgtMessage)message);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 	}
@@ -135,6 +147,54 @@ public class MasterMessageProcessor implements MessageProcessor {
 	}
 	private void processNodeMessage(NodeMessage message){
 		NodeBalance.updateNode(message.getNode());
+	}
+	private void processMgtMessage(MgtMessage message) throws IOException{
+		if(message.getOperation().equals(Operation.JOB_LIST)){
+			RemoteReport report=new RemoteReport();
+			Iterator<Map.Entry<String, Job>> it=NodeSystem.jobList.entrySet().iterator();
+			report.systemLog("Job Id\tJob Name\tJob Status\n");
+			while(it.hasNext()){
+				Job job=it.next().getValue();
+				report.systemLog(job.getJobId()+"\t"+job.getConf().getConfiguration().get("mapreduce.job.name")+"\t"+job.getStatus()+"\n");
+			}
+			message.setReport(report);
+			message.swapAddress();
+			ServerSocketConnection.sendMessage(message);
+		}else if(message.getOperation().equals(Operation.JOB_REPORT)){
+			String id=message.getId();
+			Job job=NodeSystem.jobList.get(id);
+			RemoteReport report;
+			if(NodeSystem.jobList.contains(id)){
+				report=(RemoteReport) job.getReport();
+			}else{
+				report=new RemoteReport();
+				report.systemLog("Couldn't find job");
+			}
+			message.setReport(report);
+			message.swapAddress();
+			ServerSocketConnection.sendMessage(message);
+		}else if(message.getOperation().equals(Operation.KILL_JOB)){
+			RemoteReport report=new RemoteReport();
+			String id=message.getId();
+			if(NodeSystem.jobList.contains(id)){
+				Job job=NodeSystem.jobList.get(id);
+				JobConf conf=job.getConf();
+				File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
+				directory.delete();
+				job.getTaskList().clear();
+				job.getReport().log("Job terminated");
+				job.setConf(null);
+				job.setStatus(Job.JobStatus.JOB_TERMINATED);
+				report.systemLog("Job killed");
+			}else{
+				report.systemLog("Couldn't find job");
+			}
+			message.setReport(report);
+			message.swapAddress();
+			ServerSocketConnection.sendMessage(message);
+		}else if(message.getOperation().equals(Operation.SHUT_DOWN)){
+			System.exit(0);
+		}
 	}
 	private void removeTask(Task task){
 		String nodeId=task.getNodeId();
