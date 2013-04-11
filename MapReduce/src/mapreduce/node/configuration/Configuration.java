@@ -10,6 +10,14 @@ public class Configuration implements Serializable {
 	private String localHostName;
 	private Integer capability;
 	private Integer messageMaxPoolSize;
+	private Integer managementPort;
+	
+	public Integer getManagementPort() {
+		return managementPort;
+	}
+	public void setManagementPort(Integer managementPort) {
+		this.managementPort = managementPort;
+	}
 	public Boolean getIsMaster() {
 		return isMaster;
 	}

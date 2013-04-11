@@ -82,6 +82,21 @@ public class ConfigurationFactory {
 		}
 		
 		
+		
+		String managementPort=porperty.getProperty("managementPort");
+		if(managementPort==null){
+			fis.close();
+			throw new Exception("Cannot find property: managementPort");
+			
+		}
+		try{
+		configuration.setManagementPort(Integer.valueOf(managementPort));
+		}catch(Exception e){
+			fis.close();
+			throw new Exception("Wrong configuration for property: managementPort");
+		}
+		
+		
 		if(!configuration.getIsMaster()){
 			String masterHostNameString=porperty.getProperty("masterHostName");
 			if(masterHostNameString==null){

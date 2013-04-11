@@ -11,7 +11,7 @@ public class Main {
 		try{
 		NodeSystem.configuration=ConfigurationFactory.getConfigurationFactory().getConfiguration(args[0]);
 		NodeSystem.node=Node.createNode();
-		Shell.createNewJobShell();
+		Shell.createShell();
 		}catch(Exception e){
 			System.out.println(e.toString());
 			System.exit(0);
