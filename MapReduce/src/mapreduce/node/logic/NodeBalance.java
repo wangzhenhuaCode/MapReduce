@@ -69,10 +69,19 @@ public class NodeBalance {
 		node.setUpdated(true);
 		node.setTaskList(new ArrayList<Task>());
 		NodeSystem.nodeList.add(node);
+		NodeSystem.nodeList.notify();
 		}
 	}
 	public static void assignTask(List<Task> taskList){
-		
+		synchronized(NodeSystem.nodeList){
+			if(NodeSystem.nodeList.isEmpty())
+				try {
+					NodeSystem.nodeList.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
 		int inputnum=taskList.size();
 		int nodenum=NodeSystem.nodeList.size();
 		int cur=0;
@@ -103,6 +112,15 @@ public class NodeBalance {
 	
 	}
 	public static void assignTask(Task task){
+		synchronized(NodeSystem.nodeList){
+			if(NodeSystem.nodeList.isEmpty())
+				try {
+					NodeSystem.nodeList.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
 		int cur=0;
 		while(true){
 		sort();
