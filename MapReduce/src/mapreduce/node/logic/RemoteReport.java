@@ -14,7 +14,7 @@ public class RemoteReport implements Reporter {
 	public void log(String logInfo) {
 		// TODO Auto-generated method stub
 		String logitem=(new Date()).toString()+"\t"+NodeSystem.configuration.getLocalHostName()+"\t"+logInfo+"\n";
-		log.concat(logitem);
+		log=log+logitem;
 	}
 	public String getLog() {
 		return log;
@@ -23,7 +23,7 @@ public class RemoteReport implements Reporter {
 		this.log = log;
 	}
 	public void systemLog(String logInfo){
-		log.concat(logInfo);
+		log=log+logInfo;
 	}
 
 }

@@ -56,7 +56,7 @@ public class MgtAgent {
 		while(!(command=in.readLine()).equals("exit")){
 			String[] arg=command.split("\\s+");
 			if(arg[0].equals("listJob")){
-				MgtMessage message=new MgtMessage(localHost,localPort,masterHost,masterPort,MgtMessage.Operation.JOB_LIST);
+				MgtMessage message=new MgtMessage(localHost,mgtPort,masterHost,masterPort,MgtMessage.Operation.JOB_LIST);
 				waitForMessage(message);
 				
 			}else if(arg[0].equals("killJob")){
@@ -64,7 +64,7 @@ public class MgtAgent {
 					System.out.println();
 					System.out.println("Incorrect command");
 				}else{
-					MgtMessage message=new MgtMessage(localHost,localPort,masterHost,masterPort,MgtMessage.Operation.KILL_JOB);
+					MgtMessage message=new MgtMessage(localHost,mgtPort,masterHost,masterPort,MgtMessage.Operation.KILL_JOB);
 					message.setId(arg[1]);
 					waitForMessage(message);
 					
@@ -75,7 +75,7 @@ public class MgtAgent {
 					System.out.println();
 					System.out.println("Incorrect command");
 				}else{
-					MgtMessage message=new MgtMessage(localHost,localPort,masterHost,masterPort,MgtMessage.Operation.JOB_REPORT);
+					MgtMessage message=new MgtMessage(localHost,mgtPort,masterHost,masterPort,MgtMessage.Operation.JOB_REPORT);
 					message.setId(arg[1]);
 					waitForMessage(message);
 				}
@@ -93,10 +93,12 @@ public class MgtAgent {
 		ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 		out.writeObject(message);
 		out.close();
+		socket.close();
 		Socket s=server.accept();
 		ObjectInputStream oin = new ObjectInputStream(s.getInputStream());
 		MgtMessage returnMessage=(MgtMessage) oin.readObject();
 		oin.close();
+		server.close();
 		System.out.println(returnMessage.getReport().getLog());
 	}
 }

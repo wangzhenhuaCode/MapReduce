@@ -66,10 +66,19 @@ public class JobConf implements Serializable {
 	protected void setJobId(String id){
 		configuration.put("mapreduce.job.id", id);
 	}
-	public void setFixedRecordLength(Long length){
-		configuration.put("mapreduce.input.fixedlength", length.toString());
-	}
 	public void setWorkingDirectory(String path){
 		configuration.put("mapreduce.workingDirectory", path);
+	}
+	public void setSplitSize(Long size){
+		if(size<128){
+			size=128L;
+		}
+		configuration.put("mapreduce.blockSize", size.toString());
+	}
+	public void setMaxMapReduceRatio(Integer ratio){
+		if(ratio<2){
+			ratio=2;
+		}
+		configuration.put("mapreduce.mapReduceRatio", ratio.toString());
 	}
 }

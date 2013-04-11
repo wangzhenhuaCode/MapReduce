@@ -15,6 +15,7 @@ import java.util.List;
 
 
 import mapreduce.sdk.OutputCollector;
+import mapreduce.sdk.OutputFormat;
 import mapreduce.sdk.Writable;
 
 public class OutputCollection<K extends Writable, V> implements OutputCollector<K, V>, Serializable {
@@ -57,11 +58,10 @@ public class OutputCollection<K extends Writable, V> implements OutputCollector<
 		out.writeObject(outputList);
 		out.close();
 	}
-	public void output(String path) throws IOException {
+	public void output(String path, OutputFormat output) throws IOException {
 		FileOutputStream out=new FileOutputStream(path);
 		for(Entry<K,V> e:outputList){
-			String str=e.key+" : "+e.value+"\n";
-			out.write(str.getBytes());
+			output.write(e.key, e.value, out);
 		}
 		out.close();
 	}

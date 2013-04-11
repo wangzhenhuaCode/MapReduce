@@ -79,6 +79,6 @@ public class Message implements Serializable{
 		this.senderHost=temp2;
 		temp=this.receiverPort;
 		this.receiverPort=this.senderPort;
-		this.senderPort=this.receiverPort;
+		this.senderPort=temp;
 	}
 }

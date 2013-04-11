@@ -82,6 +82,7 @@ public class ServerSocketConnection {
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 			out.writeObject(message);
 			out.close();
+			socket.close();
 		}
 	
 }

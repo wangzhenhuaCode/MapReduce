@@ -3,7 +3,7 @@ package mapreduce.sdk;
 import java.io.File;
 import java.io.IOException;
 
-public class FileOutputFormat implements OutputFormat {
+public abstract class FileOutputFormat<K ,V> implements OutputFormat<K,V> {
 	public static void setOutputPath(JobConf conf, String outputDir) throws IOException{
 		File outputFile=new File(outputDir);
 		if(!outputFile.isFile()&&!outputFile.isDirectory())
@@ -17,4 +17,7 @@ public class FileOutputFormat implements OutputFormat {
 		}
 		conf.setOutputFile(outputDir);
 	}
+
+	
+	
 }

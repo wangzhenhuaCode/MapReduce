@@ -2,6 +2,8 @@ package mapreduce.node.logic;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -76,19 +78,9 @@ public class MasterMessageProcessor implements MessageProcessor {
 		if(job.getStatus()==JobStatus.JOB_INIT){
 			JobConf conf=job.getConf();
 			String[] inputpath=conf.getConfiguration().get("mapreduce.input.path").split(",");
-			File output=new File(conf.getConfiguration().get("mapreduce.output.path"));
-			if(!conf.getConfiguration().containsKey("mapreduce.workingDirectory")){
-				String workingDirectory=output.getAbsolutePath();
-				workingDirectory=workingDirectory.substring(0,workingDirectory.length()-1);
-				workingDirectory=workingDirectory+job.getJobId().replace('.', '_');
-				
-				conf.setWorkingDirectory(workingDirectory+"/");
-			}
-			
-			File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
-			directory.mkdir();
-			
-			InputFormat inputInstance=(InputFormat) Class.forName(conf.getConfiguration().get("mapreduce.input.format")).newInstance();
+			URL myurl[]={new URL("file:"+conf.getConfiguration().get("mapreduce.jar"))};
+			URLClassLoader loader=new URLClassLoader(myurl);
+			InputFormat inputInstance=(InputFormat) loader.loadClass(conf.getConfiguration().get("mapreduce.input.format")).newInstance();
 			InputSplit[] inputsplit=inputInstance.getSplit(conf, inputpath);
 			job.setTaskList(new ArrayList<Task>());
 			for(int i=0;i<inputsplit.length;i++){
@@ -212,6 +204,9 @@ public class MasterMessageProcessor implements MessageProcessor {
 		JobConf conf=job.getConf();
 		OutputCollection<WrapObject,Writable> collection=new OutputCollection<WrapObject,Writable>();
 		collection.add(message.getTask().getOutput());
+		URL myurl[]={new URL("file:"+conf.getConfiguration().get("mapreduce.jar"))};
+		URLClassLoader loader=new URLClassLoader(myurl);
+		OutputFormat output=loader.loadClass(conf.getConfiguration())
 		collection.output(conf.getConfiguration().get("mapreduce.output.path"));
 		File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
 		directory.delete();
