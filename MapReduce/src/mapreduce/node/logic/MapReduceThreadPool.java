@@ -1,6 +1,7 @@
 package mapreduce.node.logic;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -61,6 +62,7 @@ public class MapReduceThreadPool {
 							MapTask task=(MapTask)message.getTask();
 							JobConf conf=task.getConf();
 							task.getReporter().log("Begin map");
+							
 							String mapClassAddr=conf.getConfiguration().get("mapreduce.map.class");
 							String combineClassAddr=conf.getConfiguration().get("mapreduce.combiner.class");
 							URL myurl[]={new URL("file:"+conf.getConfiguration().get("mapreduce.jar"))};
@@ -84,26 +86,13 @@ public class MapReduceThreadPool {
 							OutputCollection<WrapObject,Writable> outputCollection=new OutputCollection<WrapObject,Writable>();
 							while(reader.next(key, value)){
 								if(key.getValue()!=null){
-									try{
+									
 									map.map(keyClass.cast(key),valueClass.cast(value), outputCollection, task.getReporter());
-									}catch(Exception e){
-										ByteArrayOutputStream os = new ByteArrayOutputStream();
-										PrintStream ps = new PrintStream(os);
-										e.printStackTrace(ps);
-										task.getReporter().log("Error:"+os.toString());
-										task.setStatus(TaskStatus.ERROR);
-										break;
-									}
+									
 								}
 								key=reader.createKey();
 								value=reader.createValue();
 								
-							}
-							if(task.getStatus().equals(TaskStatus.ERROR)){
-								task.setInputSplit(null);
-								TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
-								ServerSocketConnection.sendMessage(message2);
-								return;
 							}
 							Reducer combine=(Reducer)combineClass.newInstance();
 							OutputCollection<WrapObject,Writable> combineCollection=new OutputCollection<WrapObject,Writable>();
@@ -116,17 +105,9 @@ public class MapReduceThreadPool {
 									list.add(outputCollection.getOutputList().get(i).value);
 								}else{
 									if(!k.equals(outputCollection.getOutputList().get(i).key)){
-										try{
+										
 											combine.reduce(k, list.iterator(), combineCollection, task.getReporter());
-										}catch(Exception e){
-											ByteArrayOutputStream os = new ByteArrayOutputStream();
-											PrintStream ps = new PrintStream(os);
-											e.printStackTrace(ps);
-											task.getReporter().log("Error:"+os.toString());
-											task.setStatus(TaskStatus.ERROR);
-											k=null;
-											break;
-										}
+										
 										list=new ArrayList<Writable>();
 										k=outputCollection.getOutputList().get(i).key;
 							
@@ -140,31 +121,15 @@ public class MapReduceThreadPool {
 							}
 							
 							if(k!=null){
-								try{
+								
 									combine.reduce(k, list.iterator(), combineCollection, null);
-								}catch(Exception e){
-										ByteArrayOutputStream os = new ByteArrayOutputStream();
-										PrintStream ps = new PrintStream(os);
-										e.printStackTrace(ps);
-										task.getReporter().log("Error:"+os.toString());
-										task.setStatus(TaskStatus.ERROR);
-									}
+								
 							}
-							if(task.getStatus().equals(TaskStatus.ERROR)){
-								task.setInputSplit(null);
-								TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
-								ServerSocketConnection.sendMessage(message2);
-								return;
-							}
+							
 							String output=conf.getConfiguration().get("mapreduce.workingDirectory")+task.getJobId()+"_"+task.getTaskId();
-							try{
+							
 								combineCollection.serialize(output);
-							}catch(Exception e){
-								task.setStatus(TaskStatus.ERROR);
-								TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
-								ServerSocketConnection.sendMessage(message2);
-								return;
-							}
+							
 							task.setOutput(output);
 							task.setInputSplit(null);
 							task.setStatus(Task.TaskStatus.END);
@@ -197,17 +162,9 @@ public class MapReduceThreadPool {
 									list.add(combineCollection.getOutputList().get(i).value);
 								}else{
 									if(!k.equals(combineCollection.getOutputList().get(i).key)){
-										try{
+										
 											reduce.reduce(k, list.iterator(), reduceCollection, task.getReporter());
-										}catch(Exception e){
-												ByteArrayOutputStream os = new ByteArrayOutputStream();
-												PrintStream ps = new PrintStream(os);
-												e.printStackTrace(ps);
-												task.getReporter().log("Error:"+os.toString());
-												task.setStatus(TaskStatus.ERROR);
-												k=null;
-												break;
-										}
+										
 										list=new ArrayList<Writable>();
 										k=combineCollection.getOutputList().get(i).key;
 									
@@ -220,31 +177,15 @@ public class MapReduceThreadPool {
 								}
 							}
 							if(k!=null){
-								try{
+								
 									reduce.reduce(k, list.iterator(), reduceCollection, null);
-								}catch(Exception e){
-									ByteArrayOutputStream os = new ByteArrayOutputStream();
-									PrintStream ps = new PrintStream(os);
-									e.printStackTrace(ps);
-									task.getReporter().log("Error:"+os.toString());
-									task.setStatus(TaskStatus.ERROR);
-				
-								}
+								
 							}
-							if(task.getStatus().equals(TaskStatus.ERROR)){
-								TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
-								ServerSocketConnection.sendMessage(message2);
-								return;
-							}
+							
 							String output=conf.getConfiguration().get("mapreduce.workingDirectory")+task.getJobId()+"_"+task.getTaskId();
-							try{
+							
 								reduceCollection.serialize(output);
-							}catch(Exception e){
-								task.setStatus(TaskStatus.ERROR);
-								TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
-								ServerSocketConnection.sendMessage(message2);
-								return;
-							}
+							
 							task.setOutput(output);
 							
 							if(task.getStatus().equals(Task.TaskStatus.JOB_FINAL)){
@@ -260,7 +201,19 @@ public class MapReduceThreadPool {
 						}
 						
 						}catch(Exception e){
-							e.printStackTrace();
+							ByteArrayOutputStream os = new ByteArrayOutputStream();
+							PrintStream ps = new PrintStream(os);
+							e.printStackTrace(ps);
+							Task task=message.getTask();
+							task.getReporter().log("Error:"+os.toString());
+							task.setStatus(TaskStatus.ERROR);
+							TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
+							try {
+								ServerSocketConnection.sendMessage(message2);
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 						synchronized(working){
 							working--;

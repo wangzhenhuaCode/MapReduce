@@ -81,8 +81,12 @@ public class NodeBalance {
 			int cur=0;
 			sort();
 			while(cur<inputnum){
-				
-					Task task=taskList.get(cur);
+				Task task=null;
+					try{
+					task=taskList.get(cur);
+					}catch(Exception e){
+						return;
+					}
 					NodeStatus node=null;
 					synchronized(NodeSystem.nodeList){
 						while(NodeSystem.nodeList.isEmpty()){

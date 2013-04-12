@@ -142,6 +142,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.ERROR)){
 				JobConf conf=job.getConf();
 				deleteTemp(conf.getConfiguration().get("mapreduce.workingDirectory"));
+				job.getReport().systemLog(message.getTask().getReporter().getLog());
 				job.getTaskList().clear();
 				job.getReport().log("Job terminated");
 
