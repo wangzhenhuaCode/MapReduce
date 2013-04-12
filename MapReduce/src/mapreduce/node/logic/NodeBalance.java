@@ -37,6 +37,7 @@ public class NodeBalance {
 								NodeSystem.nodeList.remove(node);
 							}
 						}
+						
 					}
 					for(NodeStatus node:disconnetNodelist){
 						recover(node);
@@ -45,11 +46,13 @@ public class NodeBalance {
 				}
 			}
 			private void recover(NodeStatus node){
+				List<Task> tasklist=new ArrayList<Task>();
 				for(Task t:node.getTaskList()){
 					if(t.getStatus().equals(Task.TaskStatus.BEGIN)){
-						assignTask(t);
+						tasklist.add(t);
 					}
 				}
+				assignTask(tasklist);
 			}
 			
 		});
@@ -69,28 +72,52 @@ public class NodeBalance {
 		node.setUpdated(true);
 		node.setTaskList(new ArrayList<Task>());
 		NodeSystem.nodeList.add(node);
-		NodeSystem.nodeList.notify();
+		NodeSystem.nodeList.notifyAll();
 		}
 	}
 	public static void assignTask(List<Task> taskList){
-		synchronized(NodeSystem.nodeList){
-			if(NodeSystem.nodeList.isEmpty())
-				try {
-					NodeSystem.nodeList.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}
-		int inputnum=taskList.size();
-		int nodenum=NodeSystem.nodeList.size();
-		int cur=0;
-		int count=0;
-		sort();
-		while(cur<inputnum){
-			
-				Task task=taskList.get(cur);
-				NodeStatus node=NodeSystem.nodeList.get(count);
+		
+			int inputnum=taskList.size();
+			int cur=0;
+			sort();
+			while(cur<inputnum){
+				
+					Task task=taskList.get(cur);
+					NodeStatus node=null;
+					synchronized(NodeSystem.nodeList){
+						while(NodeSystem.nodeList.isEmpty()){
+							try {
+								NodeSystem.nodeList.wait();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						node=NodeSystem.nodeList.get(cur%NodeSystem.nodeList.size());
+					}
+					task.setNodeId(node.getNodeId());
+					if(task.getStatus()==null)
+						task.setStatus(Task.TaskStatus.BEGIN);
+					TaskMessage message =new TaskMessage(node.getConfiguration().getLocalHostName(),node.getConfiguration().getLocalPort(),task);
+					try {
+						ServerSocketConnection.sendMessage(message);
+					} catch (IOException e) {
+						synchronized(NodeSystem.nodeList){
+							NodeSystem.nodeList.remove(node);
+						}
+						continue;
+					}
+					node.addTask(task);
+					cur++;
+		
+				
+			}
+		
+	
+	}
+	public static void assignTask(Task task){
+			while(true){
+				NodeStatus node=getLeastBusyNode();
 				task.setNodeId(node.getNodeId());
 				if(task.getStatus()==null)
 					task.setStatus(Task.TaskStatus.BEGIN);
@@ -98,51 +125,37 @@ public class NodeBalance {
 				try {
 					ServerSocketConnection.sendMessage(message);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					synchronized(NodeSystem.nodeList){
+						NodeSystem.nodeList.remove(node);
+					}
 					continue;
 				}
 				node.addTask(task);
-				cur++;
-				count++;
-				if(count==nodenum)
-					count=0;
+				break;
+			}
 			
-		}
 		
-	
-	}
-	public static void assignTask(Task task){
-		synchronized(NodeSystem.nodeList){
-			if(NodeSystem.nodeList.isEmpty())
-				try {
-					NodeSystem.nodeList.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}
-		int cur=0;
-		while(true){
-		sort();
-		NodeStatus node=NodeSystem.nodeList.get(cur);
-		task.setNodeId(node.getNodeId());
-		if(task.getStatus()==null)
-			task.setStatus(Task.TaskStatus.BEGIN);
-		TaskMessage message =new TaskMessage(node.getConfiguration().getLocalHostName(),node.getConfiguration().getLocalPort(),task);
-		try {
-			ServerSocketConnection.sendMessage(message);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			cur++;
-			continue;
-		}
-		node.addTask(task);
-		break;
-	}
 	}
 	public static NodeStatus getLeastBusyNode(){
 		sort();
-		return NodeSystem.nodeList.get(0);
+		NodeStatus node=null;
+		while(node==null){
+			try{
+				node=NodeSystem.nodeList.get(0);
+			}catch(Exception e){
+				node=null;
+				synchronized(NodeSystem.nodeList){
+					try {
+						NodeSystem.nodeList.wait();
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
+		return node;
+		
 		
 	}
 	private static void sort(){

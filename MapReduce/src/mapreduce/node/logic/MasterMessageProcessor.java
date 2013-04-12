@@ -75,15 +75,13 @@ public class MasterMessageProcessor implements MessageProcessor {
 		
 	}
 	private void processJobMessage(JobMessage message) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException{
-		Job job=message.getJob();
-		if(job.getStatus()==JobStatus.JOB_INIT){
-			JobConf conf=job.getConf();
+			JobConf conf=message.getJobConf();
+			Job job=new Job(conf,Job.JobStatus.JOB_RUNNING,conf.getConfiguration().get("mapreduce.job.id"));
 			String[] inputpath=conf.getConfiguration().get("mapreduce.input.path").split(",");
 			URL myurl[]={new URL("file:"+conf.getConfiguration().get("mapreduce.jar"))};
 			URLClassLoader loader=new URLClassLoader(myurl);
 			InputFormat inputInstance=(InputFormat) loader.loadClass(conf.getConfiguration().get("mapreduce.input.format")).newInstance();
 			InputSplit[] inputsplit=inputInstance.getSplit(conf, inputpath);
-			job.setTaskList(new ArrayList<Task>());
 			for(int i=0;i<inputsplit.length;i++){
 				MapTask task=new MapTask(job.getJobId(),"M+"+i);
 				task.setInputSplit(inputsplit[i]);
@@ -95,7 +93,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 			job.getReport().log("Map to "+job.getTaskList().size()+" tasks");
 			NodeBalance.assignTask(job.getTaskList());
 			
-		}
+		
 	}
 	private void processTaskMessage(TaskMessage message) throws IOException, ClassNotFoundException{
 		Job job=NodeSystem.jobList.get(message.getTask().getJobId());
@@ -143,8 +141,7 @@ public class MasterMessageProcessor implements MessageProcessor {
 				}
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.ERROR)){
 				JobConf conf=job.getConf();
-				File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
-				directory.delete();
+				deleteTemp(conf.getConfiguration().get("mapreduce.workingDirectory"));
 				job.getTaskList().clear();
 				job.getReport().log("Job terminated");
 
@@ -187,10 +184,10 @@ public class MasterMessageProcessor implements MessageProcessor {
 			String id=message.getId();
 			if(NodeSystem.jobList.containsKey(id)){
 				Job job=NodeSystem.jobList.get(id);
-				if(job.getStatus().equals(JobStatus.JOB_FINISHED)){
+				if(!job.getStatus().equals(JobStatus.JOB_FINISHED)){
 					JobConf conf=job.getConf();
-					File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
-					directory.delete();
+					deleteTemp(conf.getConfiguration().get("mapreduce.workingDirectory"));
+					
 					job.getTaskList().clear();
 					job.getReport().log("Job terminated");
 					
@@ -229,14 +226,19 @@ public class MasterMessageProcessor implements MessageProcessor {
 		URLClassLoader loader=new URLClassLoader(myurl);
 		OutputFormat output=(OutputFormat) loader.loadClass(conf.getConfiguration().get("mapreduce.output.format")).newInstance();
 		collection.output(conf.getConfiguration().get("mapreduce.output.path"),output);
-		File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
-		directory.delete();
+		deleteTemp(conf.getConfiguration().get("mapreduce.workingDirectory"));
 		job.getTaskList().clear();
 		job.getReport().log("Job finished");
 		job.setStatus(Job.JobStatus.JOB_FINISHED);
 		
 	}
-
+	private void deleteTemp(String path){
+		File file=new File(path);
+		for(File f:file.listFiles()){
+			f.delete();
+		}
+		file.delete();
+	}
 
 
 }

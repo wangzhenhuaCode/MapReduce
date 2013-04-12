@@ -1,10 +1,9 @@
 package mapreduce.node.connection;
 
 import java.io.Serializable;
-import java.net.InetAddress;
+
 import java.util.Date;
 
-import mapreduce.node.NodeSystem;
 
 public class Message implements Serializable{
 	

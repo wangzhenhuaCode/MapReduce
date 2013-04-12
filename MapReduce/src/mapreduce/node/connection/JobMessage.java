@@ -1,21 +1,24 @@
 package mapreduce.node.connection;
 
-import mapreduce.node.logic.Job;
+import mapreduce.sdk.JobConf;
+
+
 
 public class JobMessage extends Message {
 	public JobMessage(
-			String receiverHost, Integer receiverPort, Job job) {
+			String receiverHost, Integer receiverPort, JobConf conf) {
 		super( receiverHost, receiverPort);
-		this.job=job;
+		this.jobConf=conf;
 	}
-	private Job job;
+	private JobConf jobConf;
+	public JobConf getJobConf() {
+		return jobConf;
+	}
+	public void setJobConf(JobConf jobconf) {
+		this.jobConf = jobconf;
+	}
 	
-	public Job getJob() {
-		return job;
-	}
-	public void setJob(Job job) {
-		this.job = job;
-	}
+	
 
 	
 

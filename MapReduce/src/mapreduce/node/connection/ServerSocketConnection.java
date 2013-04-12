@@ -15,11 +15,17 @@ public class ServerSocketConnection {
 		private Thread listen;
 		private ServerSocket server;
 		private Integer port;
-		public static ServerSocketConnection createServerSocketConnection(final Integer port) throws IOException{
+		public static ServerSocketConnection createServerSocketConnection(final Integer port){
 			if(instance==null){
 				instance=new ServerSocketConnection();
 				instance.messageQueue=new LinkedList<Socket>();
-				instance.server= new ServerSocket(port);
+				try {
+					instance.server= new ServerSocket(port);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					System.out.println("Local port has been used");
+					System.exit(0);
+				}
 				instance.port=port;
 				instance.listen=new Thread(new Runnable(){	
 					@Override

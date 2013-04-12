@@ -157,7 +157,14 @@ public class MapReduceThreadPool {
 								return;
 							}
 							String output=conf.getConfiguration().get("mapreduce.workingDirectory")+task.getJobId()+"_"+task.getTaskId();
-							combineCollection.serialize(output);
+							try{
+								combineCollection.serialize(output);
+							}catch(Exception e){
+								task.setStatus(TaskStatus.ERROR);
+								TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
+								ServerSocketConnection.sendMessage(message2);
+								return;
+							}
 							task.setOutput(output);
 							task.setInputSplit(null);
 							task.setStatus(Task.TaskStatus.END);
@@ -230,10 +237,14 @@ public class MapReduceThreadPool {
 								return;
 							}
 							String output=conf.getConfiguration().get("mapreduce.workingDirectory")+task.getJobId()+"_"+task.getTaskId();
-							reduceCollection.serialize(output);
-							
-							
-							
+							try{
+								reduceCollection.serialize(output);
+							}catch(Exception e){
+								task.setStatus(TaskStatus.ERROR);
+								TaskMessage message2=new TaskMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),task);
+								ServerSocketConnection.sendMessage(message2);
+								return;
+							}
 							task.setOutput(output);
 							
 							if(task.getStatus().equals(Task.TaskStatus.JOB_FINAL)){

@@ -9,7 +9,7 @@ import mapreduce.sdk.JobConf;
 import mapreduce.sdk.Reporter;
 
 public class Job implements Serializable {
-	public static enum JobStatus{JOB_INIT, JOB_FINALL_STATE,JOB_FINISHED,JOB_TERMINATED};
+	public static enum JobStatus{JOB_RUNNING, JOB_FINALL_STATE,JOB_FINISHED,JOB_TERMINATED};
 	private JobConf conf;
 	private JobStatus status;
 	private String jobId;
