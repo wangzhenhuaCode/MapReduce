@@ -14,7 +14,7 @@ public class Job implements Serializable {
 	private JobStatus status;
 	private String jobId;
 	private transient List<Task> taskList;
-	private Reporter report;
+	private RemoteReport report;
 	
 	public JobConf getConf() {
 		return conf;
@@ -66,7 +66,7 @@ public class Job implements Serializable {
 					unfinished++;
 					if(task.getTaskId().equals(t.getTaskId())){
 						t.setStatus(Task.TaskStatus.END);
-						this.report.getLog().concat(task.getReporter().getLog());
+						this.report.systemLog(task.getReporter().getLog());
 						task.setReporter(null);
 						unfinished--;
 					}
@@ -90,7 +90,7 @@ public class Job implements Serializable {
 				
 			}
 			if(!added){
-				reduce=new ReduceTask(jobId,"R-"+(new Date()).getTime(),5);
+				reduce=new ReduceTask(jobId,"R-"+(new Date()).getTime(),Integer.valueOf(conf.getConfiguration().get("mapreduce.mapReduceRatio")));
 				reduce.setStatus(Task.TaskStatus.BEGIN);
 				reduce.getSourceTaskList().add(task);
 				taskList.add(reduce);
@@ -104,10 +104,10 @@ public class Job implements Serializable {
 		}
 		return reduce;
 	}
-	public Reporter getReport() {
+	public RemoteReport getReport() {
 		return report;
 	}
-	public void setReport(Reporter report) {
+	public void setReport(RemoteReport report) {
 		this.report = report;
 	}
 	

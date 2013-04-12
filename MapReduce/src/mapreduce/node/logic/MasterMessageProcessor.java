@@ -24,6 +24,7 @@ import mapreduce.node.logic.Task.TaskStatus;
 import mapreduce.sdk.InputFormat;
 import mapreduce.sdk.InputSplit;
 import mapreduce.sdk.JobConf;
+import mapreduce.sdk.OutputFormat;
 import mapreduce.sdk.WrapObject;
 import mapreduce.sdk.Writable;
 
@@ -114,7 +115,15 @@ public class MasterMessageProcessor implements MessageProcessor {
 						
 					
 					}else if(job.getStatus().equals(JobStatus.JOB_FINISHED)){
-						finshJob(message);
+						try {
+							finshJob(message);
+						} catch (InstantiationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}else{
 						if(reducetask.getSourceTaskList().size()==reducetask.getReduceNum()){
 							reducetask.setConf(job.getConf());
@@ -123,14 +132,22 @@ public class MasterMessageProcessor implements MessageProcessor {
 					}
 				
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.JOB_FINISHED)){
-				finshJob(message);
+				try {
+					finshJob(message);
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}else if(message.getTask().getStatus().equals(Task.TaskStatus.ERROR)){
 				JobConf conf=job.getConf();
 				File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
 				directory.delete();
 				job.getTaskList().clear();
 				job.getReport().log("Job terminated");
-				job.setConf(null);
+
 				job.setStatus(Job.JobStatus.JOB_TERMINATED);
 			}
 			removeTask(message.getTask());
@@ -154,9 +171,9 @@ public class MasterMessageProcessor implements MessageProcessor {
 			ServerSocketConnection.sendMessage(message);
 		}else if(message.getOperation().equals(Operation.JOB_REPORT)){
 			String id=message.getId();
-			Job job=NodeSystem.jobList.get(id);
 			RemoteReport report;
-			if(NodeSystem.jobList.contains(id)){
+			if(NodeSystem.jobList.containsKey(id)){
+				Job job=NodeSystem.jobList.get(id);
 				report=(RemoteReport) job.getReport();
 			}else{
 				report=new RemoteReport();
@@ -168,16 +185,20 @@ public class MasterMessageProcessor implements MessageProcessor {
 		}else if(message.getOperation().equals(Operation.KILL_JOB)){
 			RemoteReport report=new RemoteReport();
 			String id=message.getId();
-			if(NodeSystem.jobList.contains(id)){
+			if(NodeSystem.jobList.containsKey(id)){
 				Job job=NodeSystem.jobList.get(id);
-				JobConf conf=job.getConf();
-				File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
-				directory.delete();
-				job.getTaskList().clear();
-				job.getReport().log("Job terminated");
-				job.setConf(null);
-				job.setStatus(Job.JobStatus.JOB_TERMINATED);
-				report.systemLog("Job killed");
+				if(job.getStatus().equals(JobStatus.JOB_FINISHED)){
+					JobConf conf=job.getConf();
+					File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
+					directory.delete();
+					job.getTaskList().clear();
+					job.getReport().log("Job terminated");
+					
+					job.setStatus(Job.JobStatus.JOB_TERMINATED);
+					report.systemLog("Job killed");
+				}else{
+					report.systemLog("Job has finished");
+				}
 			}else{
 				report.systemLog("Couldn't find job");
 			}
@@ -199,19 +220,18 @@ public class MasterMessageProcessor implements MessageProcessor {
 		}
 		node.getTaskList().remove(task);
 	}
-	private void finshJob(TaskMessage message) throws IOException, ClassNotFoundException{
+	private void finshJob(TaskMessage message) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException{
 		Job job=NodeSystem.jobList.get(message.getTask().getJobId());
 		JobConf conf=job.getConf();
 		OutputCollection<WrapObject,Writable> collection=new OutputCollection<WrapObject,Writable>();
 		collection.add(message.getTask().getOutput());
 		URL myurl[]={new URL("file:"+conf.getConfiguration().get("mapreduce.jar"))};
 		URLClassLoader loader=new URLClassLoader(myurl);
-		OutputFormat output=loader.loadClass(conf.getConfiguration())
-		collection.output(conf.getConfiguration().get("mapreduce.output.path"));
+		OutputFormat output=(OutputFormat) loader.loadClass(conf.getConfiguration().get("mapreduce.output.format")).newInstance();
+		collection.output(conf.getConfiguration().get("mapreduce.output.path"),output);
 		File directory=new File(conf.getConfiguration().get("mapreduce.workingDirectory"));
 		directory.delete();
 		job.getTaskList().clear();
-		job.setConf(null);
 		job.getReport().log("Job finished");
 		job.setStatus(Job.JobStatus.JOB_FINISHED);
 		

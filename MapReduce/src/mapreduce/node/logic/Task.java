@@ -14,7 +14,7 @@ public class Task implements Serializable {
 	private String output;
 	private JobConf conf;
 	private String nodeId;
-	private Reporter reporter;
+	private RemoteReport reporter;
 	
 	public Task(String jobId, String taskId) {
 		super();
@@ -83,11 +83,11 @@ public class Task implements Serializable {
 		else return false;
 	}
 
-	public Reporter getReporter() {
+	public RemoteReport getReporter() {
 		return reporter;
 	}
 
-	public void setReporter(Reporter reporter) {
+	public void setReporter(RemoteReport reporter) {
 		this.reporter = reporter;
 	}
 

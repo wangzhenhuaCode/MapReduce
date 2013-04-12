@@ -34,7 +34,14 @@ public class JobClient {
 		if(!conf.getConfiguration().containsKey("mapreduce.mapReduceRatio")){
 			conf.setMaxMapReduceRatio(10);
 		}
-		
+		if(!conf.getConfiguration().containsKey("mapreduce.job.name")){
+			System.out.println("Job name required");
+			return;
+		}
+		if(!conf.getConfiguration().containsKey("mapreduce.output.key.class")){
+			System.out.println("Output key class required");
+			return;
+		}
 		
 		ObjectOutputStream out = new ObjectOutputStream(System.out);
 		out.writeObject(conf);

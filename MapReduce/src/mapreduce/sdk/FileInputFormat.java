@@ -44,7 +44,7 @@ public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 
 	public abstract RecordReader<K, V> getRecordReader(InputSplit input,JobConf conf, Reporter reporter)throws IOException;
 	public InputSplit[] getSplit(JobConf conf, String[] path){
-		Long blockSize=Long.valueOf(conf.getConfiguration().get("map.input.blockSize"));
+		Long blockSize=Long.valueOf(conf.getConfiguration().get("mapreduce.blockSize"));
 		Long available=blockSize;
 		List<InputSplit> list=new ArrayList<InputSplit>();
 		InputSplit inputsplit=new InputSplit();;
