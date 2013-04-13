@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import mapreduce.node.connection.MessageThreadPool;
 import mapreduce.node.connection.NodeMessage;
+import mapreduce.node.connection.NodeMessage.NodeMessageType;
 import mapreduce.node.connection.ServerSocketConnection;
 import mapreduce.node.logic.MapReduceThreadPool;
 import mapreduce.node.logic.MessageProcessor;
@@ -29,6 +30,7 @@ public class Slave extends Node {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				NodeMessageType type=NodeMessageType.NEW_NODE;
 				while(true){
 					NodeStatus node=new NodeStatus();
 					node.setConfiguration(NodeSystem.configuration);
@@ -36,11 +38,13 @@ public class Slave extends Node {
 					node.setRunning(MapReduceThreadPool.getWorkingNum());
 					node.setWaiting(MapReduceThreadPool.getWaitingNum());
 					NodeMessage message=new NodeMessage(NodeSystem.configuration.getMasterHostName(),NodeSystem.configuration.getMasterPort(),node);
+					message.setType(type);
 					try {
 						ServerSocketConnection.sendMessage(message);
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						System.out.println("Disconnected with Master");
+						System.exit(0);
 					}
 					try {
 						Thread.sleep(15000);
@@ -48,6 +52,7 @@ public class Slave extends Node {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					type=NodeMessageType.NODE_UPDATE;
 					
 					
 				}

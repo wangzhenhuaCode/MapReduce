@@ -1,5 +1,9 @@
 package mapreduce.sdk;
 
+/**
+ * Basic type for Long
+ *
+ */
 public class LongWritable extends WrapObject<Long> {
 
 	public LongWritable(Long value) {

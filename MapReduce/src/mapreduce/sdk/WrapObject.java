@@ -2,6 +2,11 @@ package mapreduce.sdk;
 
 import java.io.Serializable;
 
+/**
+ * Base class for creating new basic type
+ *
+ * @param <T> the value's class in the basic type
+ */
 public class WrapObject<T extends Comparable<T>> implements Writable<T>{
 	private T value;
 

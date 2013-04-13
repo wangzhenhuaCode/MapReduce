@@ -3,6 +3,12 @@ package mapreduce.sdk;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * Class for output the result line by line. The format is "key : value";
+ *
+ * @param <K>
+ * @param <V>
+ */
 public class TextOutputFormat<K,V> extends FileOutputFormat<K, V> {
 
 	@Override

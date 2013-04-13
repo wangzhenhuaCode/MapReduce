@@ -15,6 +15,7 @@ import mapreduce.node.NodeSystem;
 import mapreduce.node.connection.JobMessage;
 import mapreduce.node.connection.Message;
 import mapreduce.node.connection.MgtMessage;
+import mapreduce.node.connection.NodeMessage.NodeMessageType;
 import mapreduce.node.connection.ServerSocketConnection;
 import mapreduce.node.connection.MgtMessage.Operation;
 import mapreduce.node.connection.NodeMessage;
@@ -153,7 +154,11 @@ public class MasterMessageProcessor implements MessageProcessor {
 		
 	}
 	private void processNodeMessage(NodeMessage message){
-		NodeBalance.updateNode(message.getNode());
+		Boolean isNew=false;
+		if(message.getType().equals(NodeMessageType.NEW_NODE)){
+			isNew=true;
+		}
+		NodeBalance.updateNode(message.getNode(),isNew);
 	}
 	private void processMgtMessage(MgtMessage message) throws IOException{
 		if(message.getOperation().equals(Operation.JOB_LIST)){

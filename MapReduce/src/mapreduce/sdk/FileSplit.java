@@ -2,6 +2,10 @@ package mapreduce.sdk;
 
 import java.io.Serializable;
 
+/**
+ * Class for partition in one file. It has three attributes: file path, start position and end position
+ *
+ */
 public class FileSplit implements Serializable {
 
 	private String path;

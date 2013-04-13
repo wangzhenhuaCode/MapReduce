@@ -2,6 +2,10 @@ package mapreduce.sdk;
 
 import java.io.IOException;
 
+/**
+ * Input format class for processing text file line by line
+ *
+ */
 public class TextInputFormat extends FileInputFormat<Text, Text> {
 
 	

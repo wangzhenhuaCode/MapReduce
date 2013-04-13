@@ -15,8 +15,16 @@ import mapreduce.node.connection.JobMessage;
 
 
 
+/**
+ * Class for submit job
+ *
+ */
 public class JobClient {
 
+	/**
+	 * To submit and run a job
+	 * @param conf
+	 */
 	public static void runJob(JobConf conf){
 		JobClient client=new JobClient();
 		try {
@@ -26,7 +34,7 @@ public class JobClient {
 			System.out.println(e.toString());
 		}
 	}
-	public void submitJob(JobConf conf) throws Exception {
+	private void submitJob(JobConf conf) throws Exception {
 		String localHost=InetAddress.getLocalHost().getHostName();
 		String id=(new Date()).getTime() + "_" + localHost;
 		conf.setJobId(id);

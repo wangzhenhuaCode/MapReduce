@@ -45,26 +45,20 @@ public class NodeBalance {
 					
 				}
 			}
-			private void recover(NodeStatus node){
-				List<Task> tasklist=new ArrayList<Task>();
-				for(Task t:node.getTaskList()){
-					if(t.getStatus().equals(Task.TaskStatus.BEGIN)){
-						tasklist.add(t);
-					}
-				}
-				assignTask(tasklist);
-			}
 			
 		});
 		thread.start();
 	}
-	public static void updateNode(NodeStatus node){
+	public static void updateNode(NodeStatus node,Boolean isNew){
 		synchronized(NodeSystem.nodeList){
 		for(NodeStatus n:NodeSystem.nodeList){
 			if(node.getNodeId().equals(n.getNodeId())){
 				n.setRunning(node.getRunning());
 				n.setWaiting(node.getWaiting());
 				n.setUpdated(true);
+				if(isNew){
+					recover(n);
+				}
 				return;
 				
 			}
@@ -74,6 +68,15 @@ public class NodeBalance {
 		NodeSystem.nodeList.add(node);
 		NodeSystem.nodeList.notifyAll();
 		}
+	}
+	private static void recover(NodeStatus node){
+		List<Task> tasklist=new ArrayList<Task>();
+		for(Task t:node.getTaskList()){
+			if(t.getStatus().equals(Task.TaskStatus.BEGIN)){
+				tasklist.add(t);
+			}
+		}
+		assignTask(tasklist);
 	}
 	public static void assignTask(List<Task> taskList){
 		
@@ -169,9 +172,9 @@ public class NodeBalance {
 			@Override
 			public int compare(NodeStatus arg0, NodeStatus arg1) {
 				// TODO Auto-generated method stub
-				if(arg0.getConfiguration().getCapability()-arg0.getRunning()-arg0.getWaiting()>arg1.getConfiguration().getCapability()-arg1.getRunning()-arg1.getWaiting()){
+				if(arg0.getConfiguration().getCapability()-arg0.getTaskList().size()>arg1.getConfiguration().getCapability()-arg1.getTaskList().size()){
 					return 1;
-				}else if(arg0.getConfiguration().getCapability()-arg0.getRunning()-arg0.getWaiting()<arg1.getConfiguration().getCapability()-arg1.getRunning()-arg1.getWaiting()){
+				}else if(arg0.getConfiguration().getCapability()-arg0.getTaskList().size()<arg1.getConfiguration().getCapability()-arg1.getTaskList().size()){
 					return -1;
 				}else
 					return 0;

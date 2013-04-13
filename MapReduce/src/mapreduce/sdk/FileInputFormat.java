@@ -7,8 +7,19 @@ import java.util.List;
 
 import javax.security.auth.login.Configuration;
 
+/**
+ * Class for File input format. 
+ *
+ * @param <K> key's type
+ * @param <V> value's type
+ */
 public abstract class  FileInputFormat<K,V> implements InputFormat<K,V> {
 	
+	/**
+	 * @param conf JobConf instance
+	 * @param path the input path. It could be either a file or a directory. If it is a directory, all the files under that directory will be regarded as input
+	 * @throws IOException
+	 */
 	public static void setInputPaths(JobConf conf,String path) throws IOException{
 		String inputPath="";
 		File root = new File(path);
